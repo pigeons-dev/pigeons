@@ -2,6 +2,8 @@ import { eq, and, lte } from 'drizzle-orm'
 import { jobs } from '../db/schema.js'
 import { handleSendEmail } from './handlers/send-email.js'
 import { handleWebhookDeliver } from './handlers/webhook-deliver.js'
+import { handleSendCampaign } from './handlers/send-campaign.js'
+import { handleProcessSequenceStep } from './handlers/process-sequence-step.js'
 import type { DB } from '../db/index.js'
 import type { Config } from '../config.js'
 
@@ -10,6 +12,8 @@ type JobHandler = (db: DB, config: Config, payload: Record<string, unknown>) => 
 const handlers: Record<string, JobHandler> = {
   send_email: handleSendEmail,
   'webhook.deliver': handleWebhookDeliver,
+  send_campaign: handleSendCampaign,
+  process_sequence_step: handleProcessSequenceStep,
 }
 
 export function createWorker(db: DB, config: Config) {
