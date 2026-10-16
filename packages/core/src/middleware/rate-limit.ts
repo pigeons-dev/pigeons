@@ -6,18 +6,17 @@ interface RateLimitStore {
   resetAt: number
 }
 
-const store = new Map<string, RateLimitStore>()
-
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, entry] of store) {
-    if (entry.resetAt <= now) store.delete(key)
-  }
-}, 60_000)
-
 export function rateLimit(opts: { windowMs?: number; max?: number } = {}) {
   const windowMs = opts.windowMs ?? 1000
   const max = opts.max ?? 100
+  const store = new Map<string, RateLimitStore>()
+
+  setInterval(() => {
+    const now = Date.now()
+    for (const [key, entry] of store) {
+      if (entry.resetAt <= now) store.delete(key)
+    }
+  }, 60_000).unref()
 
   return (req: Request, res: Response, next: NextFunction) => {
     const key = (req as any).apiKey?.id ?? req.ip ?? 'anonymous'

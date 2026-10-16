@@ -1,0 +1,225 @@
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { createClient } from '@libsql/client'
+import { drizzle } from 'drizzle-orm/libsql'
+import { migrate } from 'drizzle-orm/libsql/migrator'
+import * as schema from '../db/schema.js'
+import { createApp } from '../app.js'
+import { generateApiKey } from '../utils/crypto.js'
+import { generateId } from '../utils/id.js'
+import type { Config } from '../config.js'
+import type { Server } from 'node:http'
+
+let server: Server
+let baseUrl: string
+let apiKey: string
+
+const config: Config = {
+  aws: {
+    accessKeyId: 'test',
+    secretAccessKey: 'test',
+    region: 'us-east-1',
+  },
+  fromEmail: 'test@example.com',
+  port: 0,
+  databaseUrl: ':memory:',
+  workerPollInterval: 1000,
+}
+
+beforeAll(async () => {
+  const client = createClient({ url: ':memory:' })
+  const db = drizzle(client, { schema })
+  await migrate(db, { migrationsFolder: 'drizzle' })
+
+  const { full, prefix, hash } = generateApiKey()
+  apiKey = full
+  await db.insert(schema.apiKeys).values({
+    id: generateId('apiKey'),
+    name: 'Test Key',
+    prefix,
+    hash,
+    scopes: null,
+  })
+
+  const app = createApp(db, config)
+  await new Promise<void>((resolve) => {
+    server = app.listen(0, () => {
+      const addr = server.address()
+      const port = typeof addr === 'object' && addr ? addr.port : 0
+      baseUrl = `http://127.0.0.1:${port}`
+      resolve()
+    })
+  })
+})
+
+afterAll(() => {
+  server?.close()
+})
+
+async function get(path: string) {
+  const res = await fetch(`${baseUrl}${path}`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  })
+  return { status: res.status, data: (await res.json()) as any }
+}
+
+async function post(path: string, body: unknown) {
+  const res = await fetch(`${baseUrl}${path}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+  return { status: res.status, data: (await res.json()) as any }
+}
+
+describe('health', () => {
+  it('returns 200 without auth', async () => {
+    const res = await fetch(`${baseUrl}/health`)
+    const data = (await res.json()) as any
+    expect(res.status).toBe(200)
+    expect(data.status).toBe('ok')
+  })
+})
+
+describe('auth', () => {
+  it('rejects requests without auth header', async () => {
+    const res = await fetch(`${baseUrl}/api/v1/emails`)
+    expect(res.status).toBe(401)
+  })
+
+  it('rejects invalid api keys', async () => {
+    const res = await fetch(`${baseUrl}/api/v1/emails`, {
+      headers: { Authorization: 'Bearer pgn_invalid' },
+    })
+    expect(res.status).toBe(401)
+  })
+
+  it('rejects non-pgn tokens', async () => {
+    const res = await fetch(`${baseUrl}/api/v1/emails`, {
+      headers: { Authorization: 'Bearer some_random_token' },
+    })
+    expect(res.status).toBe(401)
+  })
+})
+
+describe('POST /api/v1/emails', () => {
+  it('queues an email', async () => {
+    const { status, data } = await post('/api/v1/emails', {
+      to: 'user@example.com',
+      subject: 'Test',
+      html: '<h1>Hello</h1>',
+    })
+    expect(status).toBe(201)
+    expect(data.id).toMatch(/^msg_/)
+    expect(data.status).toBe('queued')
+    expect(data.from).toBe('test@example.com')
+    expect(data.to).toEqual(['user@example.com'])
+  })
+
+  it('rejects missing subject', async () => {
+    const { status } = await post('/api/v1/emails', {
+      to: 'user@example.com',
+      html: '<h1>Hello</h1>',
+    })
+    expect(status).toBe(400)
+  })
+
+  it('rejects missing body', async () => {
+    const { status, data } = await post('/api/v1/emails', {
+      to: 'user@example.com',
+      subject: 'Test',
+    })
+    expect(status).toBe(400)
+    expect(data.error.message).toContain('html or text')
+  })
+
+  it('rejects invalid email address', async () => {
+    const { status } = await post('/api/v1/emails', {
+      to: 'not-an-email',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+    })
+    expect(status).toBe(400)
+  })
+})
+
+describe('GET /api/v1/emails', () => {
+  it('lists emails with pagination', async () => {
+    const { status, data } = await get('/api/v1/emails')
+    expect(status).toBe(200)
+    expect(data).toHaveProperty('data')
+    expect(data).toHaveProperty('has_more')
+    expect(data).toHaveProperty('next_cursor')
+    expect(Array.isArray(data.data)).toBe(true)
+  })
+})
+
+describe('GET /api/v1/emails/:id', () => {
+  it('returns an email by id', async () => {
+    const created = await post('/api/v1/emails', {
+      to: 'get-test@example.com',
+      subject: 'Get Test',
+      html: '<p>Test</p>',
+    })
+
+    const { status, data } = await get(`/api/v1/emails/${created.data.id}`)
+    expect(status).toBe(200)
+    expect(data.id).toBe(created.data.id)
+    expect(data.subject).toBe('Get Test')
+  })
+
+  it('returns 404 for unknown id', async () => {
+    const { status } = await get('/api/v1/emails/msg_nonexistent')
+    expect(status).toBe(404)
+  })
+})
+
+describe('POST /api/v1/emails/:id/cancel', () => {
+  it('cancels a queued email', async () => {
+    const created = await post('/api/v1/emails', {
+      to: 'cancel@example.com',
+      subject: 'Cancel Me',
+      html: '<p>Cancel</p>',
+    })
+
+    const { status, data } = await post(`/api/v1/emails/${created.data.id}/cancel`, {})
+    expect(status).toBe(200)
+    expect(data.status).toBe('failed')
+  })
+})
+
+describe('POST /api/v1/emails/batch', () => {
+  it('queues multiple emails', async () => {
+    const { status, data } = await post('/api/v1/emails/batch', [
+      { to: 'a@example.com', subject: 'A', html: '<p>A</p>' },
+      { to: 'b@example.com', subject: 'B', html: '<p>B</p>' },
+    ])
+    expect(status).toBe(201)
+    expect(data).toHaveLength(2)
+    expect(data[0].id).toMatch(/^msg_/)
+    expect(data[1].id).toMatch(/^msg_/)
+  })
+})
+
+describe('API keys', () => {
+  it('lists api keys', async () => {
+    const { status, data } = await get('/api/v1/api-keys')
+    expect(status).toBe(200)
+    expect(data.data.length).toBeGreaterThan(0)
+    expect(data.data[0]).not.toHaveProperty('hash')
+  })
+
+  it('creates and revokes an api key', async () => {
+    const { status: createStatus, data: key } = await post('/api/v1/api-keys', { name: 'Temp Key' })
+    expect(createStatus).toBe(201)
+    expect(key.key).toMatch(/^pgn_/)
+
+    const res = await fetch(`${baseUrl}/api/v1/api-keys/${key.id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${apiKey}` },
+    })
+    expect(res.status).toBe(200)
+  })
+})
