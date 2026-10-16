@@ -74,35 +74,46 @@ function buildRecords(
   return records
 }
 
-export async function addDomain(db: DB, config: Config, domain: string) {
+export async function addDomain(db: DB, config: Config, domainName: string) {
   const [existing] = await db
     .select()
     .from(domains)
-    .where(eq(domains.domain, domain))
+    .where(eq(domains.domain, domainName))
     .limit(1)
 
-  if (existing) throw new ConflictError(`Domain '${domain}' already exists`)
+  if (existing) throw new ConflictError(`Domain '${domainName}' already exists`)
 
   const ses = getSesClient(config)
-  const response = await ses.send(
-    new CreateEmailIdentityCommand({
-      EmailIdentity: domain,
-    }),
-  )
+  let dkimTokens: string[] = []
 
-  const dkimTokens = response.DkimAttributes?.Tokens ?? []
-  const records = buildRecords(domain, config.aws.region, dkimTokens)
+  try {
+    const response = await ses.send(
+      new CreateEmailIdentityCommand({ EmailIdentity: domainName }),
+    )
+    dkimTokens = response.DkimAttributes?.Tokens ?? []
+  } catch (err: any) {
+    if (err.name === 'AlreadyExistsException') {
+      const existing = await ses.send(
+        new GetEmailIdentityCommand({ EmailIdentity: domainName }),
+      )
+      dkimTokens = existing.DkimAttributes?.Tokens ?? []
+    } else {
+      throw err
+    }
+  }
+
+  const records = buildRecords(domainName, config.aws.region, dkimTokens)
   const id = generateId('domain')
 
   await db.insert(domains).values({
     id,
-    domain,
+    domain: domainName,
     region: config.aws.region,
     dkimTokens,
     records,
   })
 
-  return { id, domain, verificationStatus: 'pending', records }
+  return { id, domain: domainName, verificationStatus: 'pending', records }
 }
 
 export async function verifyDomain(db: DB, config: Config, id: string) {
