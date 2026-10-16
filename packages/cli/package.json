@@ -1,0 +1,27 @@
+{
+  "name": "@pigeons/cli",
+  "version": "0.1.0",
+  "description": "CLI for managing a Pigeons email infrastructure instance",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "pigeons": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

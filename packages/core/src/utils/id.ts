@@ -1,0 +1,20 @@
+import { v4 as uuidv4 } from 'uuid'
+
+const PREFIXES = {
+  email: 'msg',
+  domain: 'dom',
+  apiKey: 'key',
+  job: 'job',
+  inbox: 'inb',
+  thread: 'thr',
+  contact: 'ctc',
+  campaign: 'cmp',
+  sequence: 'seq',
+  webhook: 'whk',
+} as const
+
+type EntityType = keyof typeof PREFIXES
+
+export function generateId(type: EntityType): string {
+  return `${PREFIXES[type]}_${uuidv4().replace(/-/g, '')}`
+}
