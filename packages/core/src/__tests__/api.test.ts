@@ -74,6 +74,26 @@ async function post(path: string, body: unknown) {
   return { status: res.status, data: (await res.json()) as any }
 }
 
+async function patch(path: string, body: unknown) {
+  const res = await fetch(`${baseUrl}${path}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+  return { status: res.status, data: (await res.json()) as any }
+}
+
+async function del(path: string) {
+  const res = await fetch(`${baseUrl}${path}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${apiKey}` },
+  })
+  return { status: res.status, data: (await res.json()) as any }
+}
+
 describe('health', () => {
   it('returns 200 without auth', async () => {
     const res = await fetch(`${baseUrl}/health`)
@@ -132,7 +152,7 @@ describe('POST /api/v1/emails', () => {
       subject: 'Test',
     })
     expect(status).toBe(400)
-    expect(data.error.message).toContain('html or text')
+    expect(data.error.message).toContain('html, text, or templateId')
   })
 
   it('rejects invalid email address', async () => {
@@ -221,5 +241,168 @@ describe('API keys', () => {
       headers: { Authorization: `Bearer ${apiKey}` },
     })
     expect(res.status).toBe(200)
+  })
+})
+
+describe('Templates', () => {
+  let templateId: string
+
+  it('creates a template', async () => {
+    const { status, data } = await post('/api/v1/templates', {
+      slug: 'welcome',
+      name: 'Welcome Email',
+      subject: 'Welcome {{name}}',
+      body: 'const Template = (data) => createElement("p", null, "Hello " + data.name)',
+      sampleData: { name: 'Test User' },
+    })
+    expect(status).toBe(201)
+    expect(data.id).toMatch(/^tpl_/)
+    expect(data.slug).toBe('welcome')
+    expect(data.version).toBe(1)
+    templateId = data.id
+  })
+
+  it('rejects duplicate slug', async () => {
+    const { status } = await post('/api/v1/templates', {
+      slug: 'welcome',
+      name: 'Duplicate',
+      subject: 'Dup',
+      body: 'const Template = () => createElement("p", null, "dup")',
+    })
+    expect(status).toBe(409)
+  })
+
+  it('lists templates', async () => {
+    const { status, data } = await get('/api/v1/templates')
+    expect(status).toBe(200)
+    expect(data.data.length).toBeGreaterThan(0)
+  })
+
+  it('gets a template by slug', async () => {
+    const { status, data } = await get('/api/v1/templates/welcome')
+    expect(status).toBe(200)
+    expect(data.name).toBe('Welcome Email')
+  })
+
+  it('gets a template by id', async () => {
+    const { status, data } = await get(`/api/v1/templates/${templateId}`)
+    expect(status).toBe(200)
+    expect(data.slug).toBe('welcome')
+  })
+
+  it('updates a template', async () => {
+    const { status, data } = await patch(`/api/v1/templates/${templateId}`, {
+      name: 'Updated Welcome',
+    })
+    expect(status).toBe(200)
+    expect(data.name).toBe('Updated Welcome')
+  })
+
+  it('increments version on body change', async () => {
+    const { data } = await patch(`/api/v1/templates/${templateId}`, {
+      body: 'const Template = (data) => createElement("p", null, "Hi " + data.name)',
+    })
+    expect(data.version).toBe(2)
+  })
+
+  it('previews a template', async () => {
+    const { status, data } = await post(`/api/v1/templates/${templateId}/preview`, {
+      data: { name: 'Preview User' },
+    })
+    expect(status).toBe(200)
+    expect(data.subject).toBe('Welcome Preview User')
+    expect(data.html).toBeTruthy()
+    expect(data.text).toBeTruthy()
+  })
+
+  it('deletes a template', async () => {
+    const { status, data } = await del(`/api/v1/templates/${templateId}`)
+    expect(status).toBe(200)
+    expect(data.deleted).toBe(true)
+  })
+})
+
+describe('Contacts', () => {
+  let contactId: string
+
+  it('creates a contact', async () => {
+    const { status, data } = await post('/api/v1/contacts', {
+      email: 'contact@example.com',
+      firstName: 'Jane',
+      lastName: 'Doe',
+      tags: ['vip', 'beta'],
+      properties: { plan: 'pro' },
+    })
+    expect(status).toBe(201)
+    expect(data.id).toMatch(/^ctc_/)
+    expect(data.email).toBe('contact@example.com')
+    expect(data.tags).toEqual(['vip', 'beta'])
+    contactId = data.id
+  })
+
+  it('rejects duplicate email', async () => {
+    const { status } = await post('/api/v1/contacts', {
+      email: 'contact@example.com',
+    })
+    expect(status).toBe(409)
+  })
+
+  it('batch creates contacts', async () => {
+    const { status, data } = await post('/api/v1/contacts/batch', [
+      { email: 'batch1@example.com', firstName: 'Batch' },
+      { email: 'batch2@example.com', firstName: 'Batch' },
+      { email: 'contact@example.com' },
+    ])
+    expect(status).toBe(201)
+    expect(data.created).toBe(2)
+    expect(data.skipped).toBe(1)
+  })
+
+  it('lists contacts', async () => {
+    const { status, data } = await get('/api/v1/contacts')
+    expect(status).toBe(200)
+    expect(data.data.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('gets a contact by id', async () => {
+    const { status, data } = await get(`/api/v1/contacts/${contactId}`)
+    expect(status).toBe(200)
+    expect(data.firstName).toBe('Jane')
+  })
+
+  it('gets a contact by email', async () => {
+    const { status, data } = await get('/api/v1/contacts/contact@example.com')
+    expect(status).toBe(200)
+    expect(data.id).toBe(contactId)
+  })
+
+  it('updates a contact', async () => {
+    const { status, data } = await patch(`/api/v1/contacts/${contactId}`, {
+      tags: ['vip', 'beta', 'early'],
+      properties: { plan: 'enterprise' },
+    })
+    expect(status).toBe(200)
+    expect(data.tags).toEqual(['vip', 'beta', 'early'])
+    expect(data.properties).toEqual({ plan: 'enterprise' })
+  })
+
+  it('unsubscribes a contact', async () => {
+    const { status, data } = await post(`/api/v1/contacts/${contactId}/unsubscribe`, {})
+    expect(status).toBe(200)
+    expect(data.unsubscribed).toBe(true)
+    expect(data.unsubscribedAt).toBeTruthy()
+  })
+
+  it('resubscribes a contact', async () => {
+    const { status, data } = await post(`/api/v1/contacts/${contactId}/resubscribe`, {})
+    expect(status).toBe(200)
+    expect(data.unsubscribed).toBe(false)
+    expect(data.unsubscribedAt).toBeNull()
+  })
+
+  it('deletes a contact', async () => {
+    const { status, data } = await del(`/api/v1/contacts/${contactId}`)
+    expect(status).toBe(200)
+    expect(data.deleted).toBe(true)
   })
 })

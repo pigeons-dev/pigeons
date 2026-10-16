@@ -8,6 +8,7 @@ const PREFIXES = {
   inbox: 'inb',
   thread: 'thr',
   contact: 'ctc',
+  template: 'tpl',
   campaign: 'cmp',
   sequence: 'seq',
   webhook: 'whk',

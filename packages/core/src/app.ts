@@ -6,6 +6,8 @@ import { rateLimit } from './middleware/rate-limit.js'
 import { createEmailRoutes } from './routes/emails.js'
 import { createDomainRoutes } from './routes/domains.js'
 import { createApiKeyRoutes } from './routes/api-keys.js'
+import { createTemplateRoutes } from './routes/templates.js'
+import { createContactRoutes } from './routes/contacts.js'
 import type { DB } from './db/index.js'
 import type { Config } from './config.js'
 
@@ -28,6 +30,8 @@ export function createApp(db: DB, config: Config): Express {
   api.use('/emails', rateLimit({ max: 100 }), createEmailRoutes(db, config))
   api.use('/domains', rateLimit({ max: 10 }), createDomainRoutes(db, config))
   api.use('/api-keys', rateLimit({ max: 10 }), createApiKeyRoutes(db))
+  api.use('/templates', rateLimit({ max: 50 }), createTemplateRoutes(db))
+  api.use('/contacts', rateLimit({ max: 50 }), createContactRoutes(db))
 
   app.use('/api/v1', api)
 

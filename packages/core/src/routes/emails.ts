@@ -1,9 +1,10 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { eq, desc, and, lt, gt, inArray } from 'drizzle-orm'
-import { emails, jobs } from '../db/schema.js'
+import { emails, jobs, templates } from '../db/schema.js'
 import { generateId } from '../utils/id.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
+import { renderTemplate, interpolateSubject } from '../services/template-renderer.js'
 import type { DB } from '../db/index.js'
 import type { Config } from '../config.js'
 
@@ -12,9 +13,11 @@ const sendEmailSchema = z.object({
   to: z.union([z.string().email(), z.array(z.string().email())]),
   cc: z.array(z.string().email()).optional(),
   bcc: z.array(z.string().email()).optional(),
-  subject: z.string().min(1),
+  subject: z.string().min(1).optional(),
   html: z.string().optional(),
   text: z.string().optional(),
+  templateId: z.string().optional(),
+  data: z.record(z.unknown()).optional(),
   tags: z.array(z.string()).optional(),
   headers: z.record(z.string()).optional(),
   scheduledAt: z.string().datetime().optional(),
@@ -26,8 +29,37 @@ export function createEmailRoutes(db: DB, config: Config): Router {
   router.post('/', async (req, res, next) => {
     try {
       const body = sendEmailSchema.parse(req.body)
-      if (!body.html && !body.text) {
-        throw new ValidationError('Either html or text is required')
+
+      let subject = body.subject ?? ''
+      let html = body.html ?? null
+      let text = body.text ?? null
+      let templateId = body.templateId ?? null
+      let templateData = body.data ?? null
+
+      if (body.templateId) {
+        const isId = body.templateId.startsWith('tpl_')
+        const [template] = await db
+          .select()
+          .from(templates)
+          .where(isId ? eq(templates.id, body.templateId) : eq(templates.slug, body.templateId))
+          .limit(1)
+
+        if (!template) throw new NotFoundError('Template', body.templateId)
+
+        const data = body.data ?? {}
+        const rendered = await renderTemplate(template.body, data)
+        html = rendered.html
+        text = rendered.text
+        subject = body.subject ?? interpolateSubject(template.subject, data)
+        templateId = template.id
+        templateData = data
+      }
+
+      if (!html && !text) {
+        throw new ValidationError('Either html, text, or templateId is required')
+      }
+      if (!subject) {
+        throw new ValidationError('Subject is required')
       }
 
       const to = Array.isArray(body.to) ? body.to : [body.to]
@@ -40,10 +72,12 @@ export function createEmailRoutes(db: DB, config: Config): Router {
         to,
         cc: body.cc ?? null,
         bcc: body.bcc ?? null,
-        subject: body.subject,
-        html: body.html ?? null,
-        text: body.text ?? null,
-        status: body.scheduledAt ? 'queued' : 'queued',
+        subject,
+        html,
+        text,
+        templateId,
+        templateData,
+        status: 'queued',
         tags: body.tags ?? null,
         headers: body.headers ?? null,
         idempotencyKey: (req.headers['idempotency-key'] as string) ?? null,
@@ -63,7 +97,7 @@ export function createEmailRoutes(db: DB, config: Config): Router {
         status: 'queued',
         from,
         to,
-        subject: body.subject,
+        subject,
       })
     } catch (err) {
       next(err)
@@ -81,15 +115,45 @@ export function createEmailRoutes(db: DB, config: Config): Router {
         const id = generateId('email')
         const from = item.from ?? config.fromEmail
 
+        let subject = item.subject ?? ''
+        let html = item.html ?? null
+        let text = item.text ?? null
+        let templateId = item.templateId ?? null
+        let templateData = item.data ?? null
+
+        if (item.templateId) {
+          const isId = item.templateId.startsWith('tpl_')
+          const [template] = await db
+            .select()
+            .from(templates)
+            .where(isId ? eq(templates.id, item.templateId) : eq(templates.slug, item.templateId))
+            .limit(1)
+
+          if (!template) throw new NotFoundError('Template', item.templateId)
+
+          const data = item.data ?? {}
+          const rendered = await renderTemplate(template.body, data)
+          html = rendered.html
+          text = rendered.text
+          subject = item.subject ?? interpolateSubject(template.subject, data)
+          templateId = template.id
+          templateData = data
+        }
+
+        if (!html && !text) throw new ValidationError('Either html, text, or templateId is required')
+        if (!subject) throw new ValidationError('Subject is required')
+
         await db.insert(emails).values({
           id,
           from,
           to,
           cc: item.cc ?? null,
           bcc: item.bcc ?? null,
-          subject: item.subject,
-          html: item.html ?? null,
-          text: item.text ?? null,
+          subject,
+          html,
+          text,
+          templateId,
+          templateData,
           status: 'queued',
           tags: item.tags ?? null,
           headers: item.headers ?? null,
@@ -101,7 +165,7 @@ export function createEmailRoutes(db: DB, config: Config): Router {
           payload: { emailId: id },
         })
 
-        results.push({ id, status: 'queued', from, to, subject: item.subject })
+        results.push({ id, status: 'queued', from, to, subject })
       }
 
       res.status(201).json(results)

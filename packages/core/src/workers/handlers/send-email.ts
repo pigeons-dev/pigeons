@@ -1,5 +1,5 @@
-import { eq } from 'drizzle-orm'
-import { emails } from '../../db/schema.js'
+import { eq, inArray } from 'drizzle-orm'
+import { emails, contacts } from '../../db/schema.js'
 import { sendEmail } from '../../services/email-sender.js'
 import type { DB } from '../../db/index.js'
 import type { Config } from '../../config.js'
@@ -19,17 +19,39 @@ export async function handleSendEmail(
     return
   }
 
+  const recipients = email.to as string[]
+  const knownContacts = await db
+    .select({ email: contacts.email, unsubscribed: contacts.unsubscribed })
+    .from(contacts)
+    .where(inArray(contacts.email, recipients))
+
+  const unsubEmails = new Set(
+    knownContacts.filter((c) => c.unsubscribed).map((c) => c.email),
+  )
+  const filteredTo = recipients.filter((e) => !unsubEmails.has(e))
+
+  if (filteredTo.length === 0) {
+    await db.update(emails).set({ status: 'failed' }).where(eq(emails.id, emailId))
+    return
+  }
+
   await db.update(emails).set({ status: 'sending' }).where(eq(emails.id, emailId))
+
+  const headers: Record<string, string> = {
+    ...((email.headers as Record<string, string>) ?? {}),
+    'List-Unsubscribe': `<mailto:unsubscribe@${email.from.split('@')[1]}?subject=unsubscribe>`,
+    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+  }
 
   const result = await sendEmail(config, {
     from: email.from,
-    to: email.to as string[],
+    to: filteredTo,
     cc: (email.cc as string[]) ?? undefined,
     bcc: (email.bcc as string[]) ?? undefined,
     subject: email.subject,
     html: email.html ?? undefined,
     text: email.text ?? undefined,
-    headers: (email.headers as Record<string, string>) ?? undefined,
+    headers,
   })
 
   await db

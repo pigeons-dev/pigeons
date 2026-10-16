@@ -102,6 +102,33 @@ export const jobs = sqliteTable('jobs', {
   ...timestamps(),
 })
 
+export const templates = sqliteTable('templates', {
+  id: text('id').primaryKey(),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  subject: text('subject').notNull(),
+  body: text('body').notNull(),
+  sampleData: text('sample_data', { mode: 'json' }).$type<Record<string, unknown>>(),
+  version: integer('version').notNull().default(1),
+  ...timestamps(),
+})
+
+export const contacts = sqliteTable('contacts', {
+  id: text('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  tags: text('tags', { mode: 'json' }).$type<string[]>(),
+  properties: text('properties', { mode: 'json' }).$type<Record<string, unknown>>(),
+  unsubscribed: integer('unsubscribed', { mode: 'boolean' }).notNull().default(false),
+  unsubscribedAt: text('unsubscribed_at'),
+  bounced: integer('bounced', { mode: 'boolean' }).notNull().default(false),
+  bouncedAt: text('bounced_at'),
+  complained: integer('complained', { mode: 'boolean' }).notNull().default(false),
+  complainedAt: text('complained_at'),
+  ...timestamps(),
+})
+
 export const idempotencyKeys = sqliteTable('idempotency_keys', {
   key: text('key').primaryKey(),
   response: text('response', { mode: 'json' }).notNull().$type<unknown>(),
