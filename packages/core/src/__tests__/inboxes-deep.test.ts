@@ -31,6 +31,8 @@ const config: Config = {
     contacts: 10000,
     inboxes: 10000,
     webhooks: 10000,
+    campaigns: 10000,
+    sequences: 10000,
   },
 }
 

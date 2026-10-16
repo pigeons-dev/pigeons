@@ -23,6 +23,8 @@ const configSchema = z.object({
     contacts: z.number(),
     inboxes: z.number(),
     webhooks: z.number(),
+    campaigns: z.number(),
+    sequences: z.number(),
   }).optional(),
 })
 

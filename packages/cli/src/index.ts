@@ -11,6 +11,8 @@ import { templatesCommand } from './commands/templates.js'
 import { contactsCommand } from './commands/contacts.js'
 import { inboxesCommand } from './commands/inboxes.js'
 import { webhooksCommand } from './commands/webhooks.js'
+import { campaignsCommand } from './commands/campaigns.js'
+import { sequencesCommand } from './commands/sequences.js'
 import { statusCommand } from './commands/status.js'
 
 const program = new Command()
@@ -31,6 +33,8 @@ program.addCommand(templatesCommand)
 program.addCommand(contactsCommand)
 program.addCommand(inboxesCommand)
 program.addCommand(webhooksCommand)
+program.addCommand(campaignsCommand)
+program.addCommand(sequencesCommand)
 program.addCommand(statusCommand)
 
 program.parse()

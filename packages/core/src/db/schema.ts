@@ -230,6 +230,82 @@ export const webhookDeliveries = sqliteTable('webhook_deliveries', {
     .$defaultFn(() => new Date().toISOString()),
 })
 
+export const campaigns = sqliteTable('campaigns', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  subject: text('subject'),
+  templateId: text('template_id'),
+  templateData: text('template_data', { mode: 'json' }).$type<Record<string, unknown>>(),
+  fromName: text('from_name'),
+  fromEmail: text('from_email'),
+  audienceFilter: text('audience_filter', { mode: 'json' }).$type<Record<string, unknown>>(),
+  status: text('status', {
+    enum: ['draft', 'scheduled', 'sending', 'paused', 'sent', 'cancelled'],
+  })
+    .notNull()
+    .default('draft'),
+  scheduledAt: text('scheduled_at'),
+  startedAt: text('started_at'),
+  completedAt: text('completed_at'),
+  stats: text('stats', { mode: 'json' })
+    .notNull()
+    .$type<{ total: number; sent: number; delivered: number; bounced: number; complained: number; failed: number }>()
+    .$defaultFn(() => ({ total: 0, sent: 0, delivered: 0, bounced: 0, complained: 0, failed: 0 })),
+  ...timestamps(),
+})
+
+export const sequences = sqliteTable('sequences', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  trigger: text('trigger', { mode: 'json' }).$type<{ event: string; filter?: Record<string, unknown> }>(),
+  status: text('status', {
+    enum: ['draft', 'active', 'paused', 'archived'],
+  })
+    .notNull()
+    .default('draft'),
+  stats: text('stats', { mode: 'json' })
+    .notNull()
+    .$type<{ enrolled: number; completed: number; exited: number; active: number }>()
+    .$defaultFn(() => ({ enrolled: 0, completed: 0, exited: 0, active: 0 })),
+  ...timestamps(),
+})
+
+export const sequenceSteps = sqliteTable('sequence_steps', {
+  id: text('id').primaryKey(),
+  sequenceId: text('sequence_id').notNull(),
+  position: integer('position').notNull(),
+  type: text('type', {
+    enum: ['email', 'delay', 'condition'],
+  }).notNull(),
+  templateId: text('template_id'),
+  templateData: text('template_data', { mode: 'json' }).$type<Record<string, unknown>>(),
+  subject: text('subject'),
+  delayDuration: text('delay_duration'),
+  condition: text('condition', { mode: 'json' }).$type<Record<string, unknown>>(),
+  stats: text('stats', { mode: 'json' })
+    .notNull()
+    .$type<{ sent: number; delivered: number; bounced: number; complained: number }>()
+    .$defaultFn(() => ({ sent: 0, delivered: 0, bounced: 0, complained: 0 })),
+  ...timestamps(),
+})
+
+export const sequenceEnrollments = sqliteTable('sequence_enrollments', {
+  id: text('id').primaryKey(),
+  sequenceId: text('sequence_id').notNull(),
+  contactId: text('contact_id').notNull(),
+  currentStepId: text('current_step_id'),
+  status: text('status', {
+    enum: ['active', 'completed', 'exited', 'failed'],
+  })
+    .notNull()
+    .default('active'),
+  enrolledAt: text('enrolled_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+  completedAt: text('completed_at'),
+  ...timestamps(),
+})
+
 export const idempotencyKeys = sqliteTable('idempotency_keys', {
   key: text('key').primaryKey(),
   response: text('response', { mode: 'json' }).notNull().$type<unknown>(),

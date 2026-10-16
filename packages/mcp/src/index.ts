@@ -377,6 +377,183 @@ server.tool(
 )
 
 // ---------------------------------------------------------------------------
+// Campaign tools
+// ---------------------------------------------------------------------------
+
+server.tool(
+  'create_campaign',
+  'Create a draft email campaign.',
+  {
+    name: z.string().describe('Campaign name'),
+    subject: z.string().optional().describe('Email subject'),
+    templateId: z.string().optional().describe('Template ID to use'),
+    templateData: z.record(z.unknown()).optional().describe('Template variables'),
+    fromEmail: z.string().optional().describe('From email address'),
+    fromName: z.string().optional().describe('From display name'),
+    audienceFilter: z.record(z.unknown()).optional().describe('JSON filter for audience targeting'),
+  },
+  async (params) => {
+    const result = await api('/campaigns', { body: params })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'list_campaigns',
+  'List email campaigns with optional status filter.',
+  {
+    status: z.enum(['draft', 'scheduled', 'sending', 'paused', 'sent', 'cancelled']).optional().describe('Filter by status'),
+    limit: z.number().optional().describe('Max results'),
+    cursor: z.string().optional().describe('Pagination cursor'),
+  },
+  async (params) => {
+    const result = await api('/campaigns', {
+      params: {
+        status: params.status,
+        limit: params.limit?.toString(),
+        cursor: params.cursor,
+      },
+    })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'get_campaign',
+  'Get campaign details and statistics.',
+  {
+    campaignId: z.string().describe('Campaign ID'),
+  },
+  async ({ campaignId }) => {
+    const result = await api(`/campaigns/${campaignId}`)
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'send_campaign',
+  'Send or schedule a campaign. Must have a subject or template and matching contacts.',
+  {
+    campaignId: z.string().describe('Campaign ID to send'),
+    scheduledAt: z.string().optional().describe('ISO 8601 timestamp for scheduled send'),
+  },
+  async ({ campaignId, scheduledAt }) => {
+    const body: Record<string, unknown> = {}
+    if (scheduledAt) body.scheduledAt = scheduledAt
+    const result = await api(`/campaigns/${campaignId}/send`, { body })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'cancel_campaign',
+  'Cancel a sending or scheduled campaign.',
+  {
+    campaignId: z.string().describe('Campaign ID to cancel'),
+  },
+  async ({ campaignId }) => {
+    const result = await api(`/campaigns/${campaignId}/cancel`, { body: {} })
+    return textResult(result)
+  },
+)
+
+// ---------------------------------------------------------------------------
+// Sequence tools
+// ---------------------------------------------------------------------------
+
+server.tool(
+  'create_sequence',
+  'Create a multi-step email sequence.',
+  {
+    name: z.string().describe('Sequence name'),
+    trigger: z.object({
+      event: z.string(),
+      filter: z.record(z.unknown()).optional(),
+    }).optional().describe('Trigger configuration'),
+    steps: z.array(z.object({
+      type: z.enum(['email', 'delay', 'condition']),
+      templateId: z.string().optional(),
+      subject: z.string().optional(),
+      delayDuration: z.string().optional(),
+      condition: z.record(z.unknown()).optional(),
+    })).optional().describe('Sequence steps'),
+  },
+  async (params) => {
+    const result = await api('/sequences', { body: params })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'list_sequences',
+  'List email sequences.',
+  {
+    status: z.enum(['draft', 'active', 'paused', 'archived']).optional().describe('Filter by status'),
+    limit: z.number().optional().describe('Max results'),
+    cursor: z.string().optional().describe('Pagination cursor'),
+  },
+  async (params) => {
+    const result = await api('/sequences', {
+      params: {
+        status: params.status,
+        limit: params.limit?.toString(),
+        cursor: params.cursor,
+      },
+    })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'get_sequence',
+  'Get sequence details with steps and stats.',
+  {
+    sequenceId: z.string().describe('Sequence ID'),
+  },
+  async ({ sequenceId }) => {
+    const result = await api(`/sequences/${sequenceId}`)
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'activate_sequence',
+  'Activate a draft or paused sequence so it starts processing enrollments.',
+  {
+    sequenceId: z.string().describe('Sequence ID to activate'),
+  },
+  async ({ sequenceId }) => {
+    const result = await api(`/sequences/${sequenceId}/activate`, { body: {} })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'pause_sequence',
+  'Pause an active sequence.',
+  {
+    sequenceId: z.string().describe('Sequence ID to pause'),
+  },
+  async ({ sequenceId }) => {
+    const result = await api(`/sequences/${sequenceId}/pause`, { body: {} })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'enroll_in_sequence',
+  'Enroll a contact in an active sequence.',
+  {
+    sequenceId: z.string().describe('Sequence ID'),
+    contactId: z.string().describe('Contact ID to enroll'),
+  },
+  async ({ sequenceId, contactId }) => {
+    const result = await api(`/sequences/${sequenceId}/enroll`, { body: { contactId } })
+    return textResult(result)
+  },
+)
+
+// ---------------------------------------------------------------------------
 // Resources
 // ---------------------------------------------------------------------------
 

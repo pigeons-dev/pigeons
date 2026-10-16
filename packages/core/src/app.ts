@@ -12,6 +12,8 @@ import { createSesEventRoutes } from './routes/ses-events.js'
 import { createInboxRoutes } from './routes/inboxes.js'
 import { createSesInboundRoutes } from './routes/ses-inbound.js'
 import { createWebhookRoutes } from './routes/webhooks.js'
+import { createCampaignRoutes } from './routes/campaigns.js'
+import { createSequenceRoutes } from './routes/sequences.js'
 import type { DB } from './db/index.js'
 import type { Config } from './config.js'
 
@@ -32,7 +34,7 @@ export function createApp(db: DB, config: Config): Express {
   api.use(auth)
   api.use(idempotency)
 
-  const defaults = { emails: 100, domains: 10, apiKeys: 10, templates: 50, contacts: 50, inboxes: 50, webhooks: 10 }
+  const defaults = { emails: 100, domains: 10, apiKeys: 10, templates: 50, contacts: 50, inboxes: 50, webhooks: 10, campaigns: 50, sequences: 50 }
   const rl = config.rateLimits ?? defaults
   api.use('/emails', rateLimit({ max: rl.emails }), createEmailRoutes(db, config))
   api.use('/domains', rateLimit({ max: rl.domains }), createDomainRoutes(db, config))
@@ -41,6 +43,8 @@ export function createApp(db: DB, config: Config): Express {
   api.use('/contacts', rateLimit({ max: rl.contacts }), createContactRoutes(db))
   api.use('/inboxes', rateLimit({ max: rl.inboxes }), createInboxRoutes(db, config))
   api.use('/webhooks', rateLimit({ max: rl.webhooks }), createWebhookRoutes(db))
+  api.use('/campaigns', rateLimit({ max: rl.campaigns }), createCampaignRoutes(db, config))
+  api.use('/sequences', rateLimit({ max: rl.sequences }), createSequenceRoutes(db, config))
 
   app.use('/v1/internal/ses', createSesEventRoutes(db))
   app.use('/v1/internal/ses/inbound', createSesInboundRoutes(db, config))
