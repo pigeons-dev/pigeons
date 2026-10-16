@@ -6,7 +6,7 @@ import type { DB } from '../db/index.js'
 export function createSesEventRoutes(db: DB): Router {
   const router = Router()
 
-  router.post('/inbound', async (req, res, next) => {
+  router.post('/events', async (req, res, next) => {
     try {
       const message = req.body
 

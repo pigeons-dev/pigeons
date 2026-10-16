@@ -19,7 +19,7 @@ export const sendCommand = new Command('send')
     const client = createClient(config)
 
     try {
-      const result = await client.post('/api/v1/emails', {
+      const result = await client.post('/v1/emails', {
         to: opts.to,
         from: opts.from,
         subject: opts.subject,

@@ -12,7 +12,7 @@ domainsCommand
     const client = createClient(config)
 
     try {
-      const result = await client.post('/api/v1/domains', { domain })
+      const result = await client.post('/v1/domains', { domain })
       console.log(`Domain registered: ${result.domain}\n`)
       console.log('Add these DNS records to your domain:\n')
       for (const record of result.records) {
@@ -33,7 +33,7 @@ domainsCommand
     const client = createClient(config)
 
     try {
-      const result = await client.get('/api/v1/domains')
+      const result = await client.get('/v1/domains')
       if (result.data.length === 0) {
         console.log('No domains configured')
         return
@@ -56,7 +56,7 @@ domainsCommand
     const client = createClient(config)
 
     try {
-      const result = await client.get(`/api/v1/domains/${id}/verify`)
+      const result = await client.get(`/v1/domains/${id}/verify`)
       console.log(`Domain: ${result.domain}`)
       console.log(`Status: ${result.verificationStatus}\n`)
       if (result.records) {

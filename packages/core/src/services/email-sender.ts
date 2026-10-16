@@ -31,7 +31,10 @@ export interface SendResult {
   messageId: string
 }
 
-export async function sendEmail(config: Config, params: SendParams): Promise<SendResult> {
+export async function sendEmail(
+  config: Config,
+  params: SendParams & { configurationSet?: string },
+): Promise<SendResult> {
   const ses = getClient(config)
 
   const destination: Record<string, string[]> = { ToAddresses: params.to }
@@ -56,12 +59,13 @@ export async function sendEmail(config: Config, params: SendParams): Promise<Sen
     ? Object.entries(params.headers).map(([Name, Value]) => ({ Name, Value }))
     : undefined
 
+  const configSet = params.configurationSet ?? config.configurationSet
+
   const command = new SendEmailCommand({
     FromEmailAddress: params.from,
     Destination: destination,
     Content: content,
-    EmailTags: undefined,
-    ListManagementOptions: undefined,
+    ...(configSet ? { ConfigurationSetName: configSet } : {}),
     ...(emailHeaders ? { Headers: emailHeaders } : {}),
   })
 

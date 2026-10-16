@@ -14,7 +14,7 @@ templatesCommand
     const client = createClient(config)
 
     try {
-      const result = await client.get('/api/v1/templates')
+      const result = await client.get('/v1/templates')
       if (result.data.length === 0) {
         console.log('No templates found')
         return
@@ -36,7 +36,7 @@ templatesCommand
     const client = createClient(config)
 
     try {
-      const tpl = await client.get(`/api/v1/templates/${slug}`)
+      const tpl = await client.get(`/v1/templates/${slug}`)
       console.log(`Name:    ${tpl.name}`)
       console.log(`Slug:    ${tpl.slug}`)
       console.log(`Subject: ${tpl.subject}`)
@@ -72,11 +72,11 @@ templatesCommand
         const subject = opts.subject ?? `{{subject}}`
 
         try {
-          await client.get(`/api/v1/templates/${slug}`)
-          const result = await client.patch(`/api/v1/templates/${slug}`, { body: source, name, subject })
+          await client.get(`/v1/templates/${slug}`)
+          const result = await client.patch(`/v1/templates/${slug}`, { body: source, name, subject })
           console.log(`  ✓ updated  ${slug}  (v${result.version})`)
         } catch {
-          const result = await client.post('/api/v1/templates', { slug, name, subject, body: source })
+          const result = await client.post('/v1/templates', { slug, name, subject, body: source })
           console.log(`  ✓ created  ${slug}  (v${result.version})`)
         }
       }
@@ -96,7 +96,7 @@ templatesCommand
 
     try {
       mkdirSync(path, { recursive: true })
-      const result = await client.get('/api/v1/templates')
+      const result = await client.get('/v1/templates')
       for (const tpl of result.data) {
         const file = join(path, `${tpl.slug}.tsx`)
         writeFileSync(file, tpl.body)
@@ -119,7 +119,7 @@ templatesCommand
 
     try {
       const data = opts.data ? JSON.parse(opts.data) : undefined
-      const result = await client.post(`/api/v1/templates/${slug}/preview`, { data })
+      const result = await client.post(`/v1/templates/${slug}/preview`, { data })
       console.log(`Subject: ${result.subject}\n`)
       console.log('--- HTML ---')
       console.log(result.html)
@@ -139,7 +139,7 @@ templatesCommand
     const client = createClient(config)
 
     try {
-      await client.delete(`/api/v1/templates/${slug}`)
+      await client.delete(`/v1/templates/${slug}`)
       console.log(`✓ Deleted template: ${slug}`)
     } catch (err) {
       console.error('Failed:', err instanceof Error ? err.message : err)

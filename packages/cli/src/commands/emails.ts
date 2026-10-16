@@ -18,7 +18,7 @@ emailsCommand
     params.set('limit', opts.limit)
 
     try {
-      const result = await client.get(`/api/v1/emails?${params}`)
+      const result = await client.get(`/v1/emails?${params}`)
       if (result.data.length === 0) {
         console.log('No emails found')
         return
@@ -43,7 +43,7 @@ emailsCommand
     const client = createClient(config)
 
     try {
-      const email = await client.get(`/api/v1/emails/${id}`)
+      const email = await client.get(`/v1/emails/${id}`)
       console.log(JSON.stringify(email, null, 2))
     } catch (err) {
       console.error('Failed:', err instanceof Error ? err.message : err)

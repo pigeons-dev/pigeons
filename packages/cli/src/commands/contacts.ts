@@ -14,7 +14,7 @@ contactsCommand
     const client = createClient(config)
 
     try {
-      let path = `/api/v1/contacts?limit=${opts.limit}`
+      let path = `/v1/contacts?limit=${opts.limit}`
       if (opts.tag) path += `&tag=${encodeURIComponent(opts.tag)}`
 
       const result = await client.get(path)
@@ -43,7 +43,7 @@ contactsCommand
 
     try {
       const lookup = emailOrId.includes('@') ? encodeURIComponent(emailOrId) : emailOrId
-      const c = await client.get(`/api/v1/contacts/${lookup}`)
+      const c = await client.get(`/v1/contacts/${lookup}`)
       console.log(`Email:        ${c.email}`)
       console.log(`Name:         ${[c.firstName, c.lastName].filter(Boolean).join(' ') || '—'}`)
       console.log(`Tags:         ${c.tags?.join(', ') || '—'}`)
@@ -73,7 +73,7 @@ contactsCommand
       const lastName = rest.join(' ') || undefined
       const tags = opts.tags ? opts.tags.split(',').map((t: string) => t.trim()) : undefined
 
-      const contact = await client.post('/api/v1/contacts', {
+      const contact = await client.post('/v1/contacts', {
         email: opts.email,
         firstName: firstName || undefined,
         lastName,
@@ -95,7 +95,7 @@ contactsCommand
 
     try {
       const lookup = emailOrId.includes('@') ? encodeURIComponent(emailOrId) : emailOrId
-      await client.delete(`/api/v1/contacts/${lookup}`)
+      await client.delete(`/v1/contacts/${lookup}`)
       console.log(`✓ Deleted contact: ${emailOrId}`)
     } catch (err) {
       console.error('Failed:', err instanceof Error ? err.message : err)
@@ -112,7 +112,7 @@ contactsCommand
 
     try {
       const lookup = emailOrId.includes('@') ? encodeURIComponent(emailOrId) : emailOrId
-      await client.post(`/api/v1/contacts/${lookup}/unsubscribe`, {})
+      await client.post(`/v1/contacts/${lookup}/unsubscribe`, {})
       console.log(`✓ Unsubscribed: ${emailOrId}`)
     } catch (err) {
       console.error('Failed:', err instanceof Error ? err.message : err)
@@ -172,7 +172,7 @@ contactsCommand
 
       for (let i = 0; i < contacts.length; i += batchSize) {
         const batch = contacts.slice(i, i + batchSize)
-        const result = await client.post('/api/v1/contacts/batch', { contacts: batch })
+        const result = await client.post('/v1/contacts/batch', { contacts: batch })
         created += result.created
         skipped += result.skipped
       }

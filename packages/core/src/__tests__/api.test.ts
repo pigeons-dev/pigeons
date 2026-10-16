@@ -105,28 +105,28 @@ describe('health', () => {
 
 describe('auth', () => {
   it('rejects requests without auth header', async () => {
-    const res = await fetch(`${baseUrl}/api/v1/emails`)
+    const res = await fetch(`${baseUrl}/v1/emails`)
     expect(res.status).toBe(401)
   })
 
   it('rejects invalid api keys', async () => {
-    const res = await fetch(`${baseUrl}/api/v1/emails`, {
+    const res = await fetch(`${baseUrl}/v1/emails`, {
       headers: { Authorization: 'Bearer pgn_invalid' },
     })
     expect(res.status).toBe(401)
   })
 
   it('rejects non-pgn tokens', async () => {
-    const res = await fetch(`${baseUrl}/api/v1/emails`, {
+    const res = await fetch(`${baseUrl}/v1/emails`, {
       headers: { Authorization: 'Bearer some_random_token' },
     })
     expect(res.status).toBe(401)
   })
 })
 
-describe('POST /api/v1/emails', () => {
+describe('POST /v1/emails', () => {
   it('queues an email', async () => {
-    const { status, data } = await post('/api/v1/emails', {
+    const { status, data } = await post('/v1/emails', {
       to: 'user@example.com',
       subject: 'Test',
       html: '<h1>Hello</h1>',
@@ -139,7 +139,7 @@ describe('POST /api/v1/emails', () => {
   })
 
   it('rejects missing subject', async () => {
-    const { status } = await post('/api/v1/emails', {
+    const { status } = await post('/v1/emails', {
       to: 'user@example.com',
       html: '<h1>Hello</h1>',
     })
@@ -147,7 +147,7 @@ describe('POST /api/v1/emails', () => {
   })
 
   it('rejects missing body', async () => {
-    const { status, data } = await post('/api/v1/emails', {
+    const { status, data } = await post('/v1/emails', {
       to: 'user@example.com',
       subject: 'Test',
     })
@@ -156,7 +156,7 @@ describe('POST /api/v1/emails', () => {
   })
 
   it('rejects invalid email address', async () => {
-    const { status } = await post('/api/v1/emails', {
+    const { status } = await post('/v1/emails', {
       to: 'not-an-email',
       subject: 'Test',
       html: '<p>Hi</p>',
@@ -165,9 +165,9 @@ describe('POST /api/v1/emails', () => {
   })
 })
 
-describe('GET /api/v1/emails', () => {
+describe('GET /v1/emails', () => {
   it('lists emails with pagination', async () => {
-    const { status, data } = await get('/api/v1/emails')
+    const { status, data } = await get('/v1/emails')
     expect(status).toBe(200)
     expect(data).toHaveProperty('data')
     expect(data).toHaveProperty('has_more')
@@ -176,43 +176,43 @@ describe('GET /api/v1/emails', () => {
   })
 })
 
-describe('GET /api/v1/emails/:id', () => {
+describe('GET /v1/emails/:id', () => {
   it('returns an email by id', async () => {
-    const created = await post('/api/v1/emails', {
+    const created = await post('/v1/emails', {
       to: 'get-test@example.com',
       subject: 'Get Test',
       html: '<p>Test</p>',
     })
 
-    const { status, data } = await get(`/api/v1/emails/${created.data.id}`)
+    const { status, data } = await get(`/v1/emails/${created.data.id}`)
     expect(status).toBe(200)
     expect(data.id).toBe(created.data.id)
     expect(data.subject).toBe('Get Test')
   })
 
   it('returns 404 for unknown id', async () => {
-    const { status } = await get('/api/v1/emails/msg_nonexistent')
+    const { status } = await get('/v1/emails/msg_nonexistent')
     expect(status).toBe(404)
   })
 })
 
-describe('POST /api/v1/emails/:id/cancel', () => {
+describe('POST /v1/emails/:id/cancel', () => {
   it('cancels a queued email', async () => {
-    const created = await post('/api/v1/emails', {
+    const created = await post('/v1/emails', {
       to: 'cancel@example.com',
       subject: 'Cancel Me',
       html: '<p>Cancel</p>',
     })
 
-    const { status, data } = await post(`/api/v1/emails/${created.data.id}/cancel`, {})
+    const { status, data } = await post(`/v1/emails/${created.data.id}/cancel`, {})
     expect(status).toBe(200)
     expect(data.status).toBe('failed')
   })
 })
 
-describe('POST /api/v1/emails/batch', () => {
+describe('POST /v1/emails/batch', () => {
   it('queues multiple emails', async () => {
-    const { status, data } = await post('/api/v1/emails/batch', [
+    const { status, data } = await post('/v1/emails/batch', [
       { to: 'a@example.com', subject: 'A', html: '<p>A</p>' },
       { to: 'b@example.com', subject: 'B', html: '<p>B</p>' },
     ])
@@ -225,18 +225,18 @@ describe('POST /api/v1/emails/batch', () => {
 
 describe('API keys', () => {
   it('lists api keys', async () => {
-    const { status, data } = await get('/api/v1/api-keys')
+    const { status, data } = await get('/v1/api-keys')
     expect(status).toBe(200)
     expect(data.data.length).toBeGreaterThan(0)
     expect(data.data[0]).not.toHaveProperty('hash')
   })
 
   it('creates and revokes an api key', async () => {
-    const { status: createStatus, data: key } = await post('/api/v1/api-keys', { name: 'Temp Key' })
+    const { status: createStatus, data: key } = await post('/v1/api-keys', { name: 'Temp Key' })
     expect(createStatus).toBe(201)
     expect(key.key).toMatch(/^pgn_/)
 
-    const res = await fetch(`${baseUrl}/api/v1/api-keys/${key.id}`, {
+    const res = await fetch(`${baseUrl}/v1/api-keys/${key.id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${apiKey}` },
     })
@@ -248,7 +248,7 @@ describe('Templates', () => {
   let templateId: string
 
   it('creates a template', async () => {
-    const { status, data } = await post('/api/v1/templates', {
+    const { status, data } = await post('/v1/templates', {
       slug: 'welcome',
       name: 'Welcome Email',
       subject: 'Welcome {{name}}',
@@ -263,7 +263,7 @@ describe('Templates', () => {
   })
 
   it('rejects duplicate slug', async () => {
-    const { status } = await post('/api/v1/templates', {
+    const { status } = await post('/v1/templates', {
       slug: 'welcome',
       name: 'Duplicate',
       subject: 'Dup',
@@ -273,25 +273,25 @@ describe('Templates', () => {
   })
 
   it('lists templates', async () => {
-    const { status, data } = await get('/api/v1/templates')
+    const { status, data } = await get('/v1/templates')
     expect(status).toBe(200)
     expect(data.data.length).toBeGreaterThan(0)
   })
 
   it('gets a template by slug', async () => {
-    const { status, data } = await get('/api/v1/templates/welcome')
+    const { status, data } = await get('/v1/templates/welcome')
     expect(status).toBe(200)
     expect(data.name).toBe('Welcome Email')
   })
 
   it('gets a template by id', async () => {
-    const { status, data } = await get(`/api/v1/templates/${templateId}`)
+    const { status, data } = await get(`/v1/templates/${templateId}`)
     expect(status).toBe(200)
     expect(data.slug).toBe('welcome')
   })
 
   it('updates a template', async () => {
-    const { status, data } = await patch(`/api/v1/templates/${templateId}`, {
+    const { status, data } = await patch(`/v1/templates/${templateId}`, {
       name: 'Updated Welcome',
     })
     expect(status).toBe(200)
@@ -299,14 +299,14 @@ describe('Templates', () => {
   })
 
   it('increments version on body change', async () => {
-    const { data } = await patch(`/api/v1/templates/${templateId}`, {
+    const { data } = await patch(`/v1/templates/${templateId}`, {
       body: 'const Template = (data) => createElement("p", null, "Hi " + data.name)',
     })
     expect(data.version).toBe(2)
   })
 
   it('previews a template', async () => {
-    const { status, data } = await post(`/api/v1/templates/${templateId}/preview`, {
+    const { status, data } = await post(`/v1/templates/${templateId}/preview`, {
       data: { name: 'Preview User' },
     })
     expect(status).toBe(200)
@@ -316,7 +316,7 @@ describe('Templates', () => {
   })
 
   it('deletes a template', async () => {
-    const { status, data } = await del(`/api/v1/templates/${templateId}`)
+    const { status, data } = await del(`/v1/templates/${templateId}`)
     expect(status).toBe(200)
     expect(data.deleted).toBe(true)
   })
@@ -326,7 +326,7 @@ describe('Contacts', () => {
   let contactId: string
 
   it('creates a contact', async () => {
-    const { status, data } = await post('/api/v1/contacts', {
+    const { status, data } = await post('/v1/contacts', {
       email: 'contact@example.com',
       firstName: 'Jane',
       lastName: 'Doe',
@@ -341,14 +341,14 @@ describe('Contacts', () => {
   })
 
   it('rejects duplicate email', async () => {
-    const { status } = await post('/api/v1/contacts', {
+    const { status } = await post('/v1/contacts', {
       email: 'contact@example.com',
     })
     expect(status).toBe(409)
   })
 
   it('batch creates contacts', async () => {
-    const { status, data } = await post('/api/v1/contacts/batch', [
+    const { status, data } = await post('/v1/contacts/batch', [
       { email: 'batch1@example.com', firstName: 'Batch' },
       { email: 'batch2@example.com', firstName: 'Batch' },
       { email: 'contact@example.com' },
@@ -359,25 +359,25 @@ describe('Contacts', () => {
   })
 
   it('lists contacts', async () => {
-    const { status, data } = await get('/api/v1/contacts')
+    const { status, data } = await get('/v1/contacts')
     expect(status).toBe(200)
     expect(data.data.length).toBeGreaterThanOrEqual(3)
   })
 
   it('gets a contact by id', async () => {
-    const { status, data } = await get(`/api/v1/contacts/${contactId}`)
+    const { status, data } = await get(`/v1/contacts/${contactId}`)
     expect(status).toBe(200)
     expect(data.firstName).toBe('Jane')
   })
 
   it('gets a contact by email', async () => {
-    const { status, data } = await get('/api/v1/contacts/contact@example.com')
+    const { status, data } = await get('/v1/contacts/contact@example.com')
     expect(status).toBe(200)
     expect(data.id).toBe(contactId)
   })
 
   it('updates a contact', async () => {
-    const { status, data } = await patch(`/api/v1/contacts/${contactId}`, {
+    const { status, data } = await patch(`/v1/contacts/${contactId}`, {
       tags: ['vip', 'beta', 'early'],
       properties: { plan: 'enterprise' },
     })
@@ -387,21 +387,21 @@ describe('Contacts', () => {
   })
 
   it('unsubscribes a contact', async () => {
-    const { status, data } = await post(`/api/v1/contacts/${contactId}/unsubscribe`, {})
+    const { status, data } = await post(`/v1/contacts/${contactId}/unsubscribe`, {})
     expect(status).toBe(200)
     expect(data.unsubscribed).toBe(true)
     expect(data.unsubscribedAt).toBeTruthy()
   })
 
   it('resubscribes a contact', async () => {
-    const { status, data } = await post(`/api/v1/contacts/${contactId}/resubscribe`, {})
+    const { status, data } = await post(`/v1/contacts/${contactId}/resubscribe`, {})
     expect(status).toBe(200)
     expect(data.unsubscribed).toBe(false)
     expect(data.unsubscribedAt).toBeNull()
   })
 
   it('deletes a contact', async () => {
-    const { status, data } = await del(`/api/v1/contacts/${contactId}`)
+    const { status, data } = await del(`/v1/contacts/${contactId}`)
     expect(status).toBe(200)
     expect(data.deleted).toBe(true)
   })
@@ -424,7 +424,7 @@ describe('SES events (no auth)', () => {
   let testEmailId: string
 
   it('processes delivery event', async () => {
-    const email = await post('/api/v1/emails', {
+    const email = await post('/v1/emails', {
       to: 'deliver@example.com',
       subject: 'Delivery test',
       html: '<p>hi</p>',
@@ -432,10 +432,10 @@ describe('SES events (no auth)', () => {
     testEmailId = email.data.id
 
     const fakeMessageId = `ses-${Date.now()}`
-    await patch(`/api/v1/emails/${testEmailId}`, { sesMessageId: fakeMessageId }).catch(() => {})
+    await patch(`/v1/emails/${testEmailId}`, { sesMessageId: fakeMessageId }).catch(() => {})
 
     const { status, data } = await rawPost(
-      '/api/v1/internal/ses/inbound',
+      '/v1/internal/ses/events',
       snsNotification({
         eventType: 'Delivery',
         mail: { messageId: email.data.sesMessageId },
@@ -446,11 +446,11 @@ describe('SES events (no auth)', () => {
   })
 
   it('processes bounce event and marks contact bounced', async () => {
-    const contact = await post('/api/v1/contacts', { email: 'bouncer@example.com' })
+    const contact = await post('/v1/contacts', { email: 'bouncer@example.com' })
     expect(contact.status).toBe(201)
 
     const { status, data } = await rawPost(
-      '/api/v1/internal/ses/inbound',
+      '/v1/internal/ses/events',
       snsNotification({
         eventType: 'Bounce',
         mail: { messageId: 'nonexistent-msg' },
@@ -463,17 +463,17 @@ describe('SES events (no auth)', () => {
     expect(status).toBe(200)
     expect(data.processed).toBe('Bounce')
 
-    const fetched = await get(`/api/v1/contacts/${encodeURIComponent('bouncer@example.com')}`)
+    const fetched = await get(`/v1/contacts/${encodeURIComponent('bouncer@example.com')}`)
     expect(fetched.data.bounced).toBe(true)
     expect(fetched.data.bouncedAt).toBeTruthy()
   })
 
   it('processes complaint event and auto-unsubscribes contact', async () => {
-    const contact = await post('/api/v1/contacts', { email: 'complainer@example.com' })
+    const contact = await post('/v1/contacts', { email: 'complainer@example.com' })
     expect(contact.status).toBe(201)
 
     const { status, data } = await rawPost(
-      '/api/v1/internal/ses/inbound',
+      '/v1/internal/ses/events',
       snsNotification({
         eventType: 'Complaint',
         mail: { messageId: 'nonexistent-msg' },
@@ -485,13 +485,13 @@ describe('SES events (no auth)', () => {
     expect(status).toBe(200)
     expect(data.processed).toBe('Complaint')
 
-    const fetched = await get(`/api/v1/contacts/${encodeURIComponent('complainer@example.com')}`)
+    const fetched = await get(`/v1/contacts/${encodeURIComponent('complainer@example.com')}`)
     expect(fetched.data.unsubscribed).toBe(true)
     expect(fetched.data.complained).toBe(true)
   })
 
   it('handles SNS subscription confirmation', async () => {
-    const { status, data } = await rawPost('/api/v1/internal/ses/inbound', {
+    const { status, data } = await rawPost('/v1/internal/ses/events', {
       Type: 'SubscriptionConfirmation',
       SubscribeURL: `${baseUrl}/health`,
     })
@@ -501,7 +501,7 @@ describe('SES events (no auth)', () => {
 
   it('skips unknown event types', async () => {
     const { status, data } = await rawPost(
-      '/api/v1/internal/ses/inbound',
+      '/v1/internal/ses/events',
       snsNotification({ eventType: 'Send' }),
     )
     expect(status).toBe(200)
@@ -509,7 +509,7 @@ describe('SES events (no auth)', () => {
   })
 
   it('skips non-Notification SNS messages', async () => {
-    const { status, data } = await rawPost('/api/v1/internal/ses/inbound', {
+    const { status, data } = await rawPost('/v1/internal/ses/events', {
       Type: 'UnsubscribeConfirmation',
     })
     expect(status).toBe(200)

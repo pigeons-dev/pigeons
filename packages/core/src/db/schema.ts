@@ -129,6 +129,107 @@ export const contacts = sqliteTable('contacts', {
   ...timestamps(),
 })
 
+export const inboxes = sqliteTable('inboxes', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  emailAddress: text('email_address').notNull().unique(),
+  description: text('description'),
+  webhookUrl: text('webhook_url'),
+  metadata: text('metadata', { mode: 'json' }).$type<Record<string, unknown>>(),
+  autoReplyEnabled: integer('auto_reply_enabled', { mode: 'boolean' }).notNull().default(false),
+  status: text('status', {
+    enum: ['active', 'paused', 'archived'],
+  })
+    .notNull()
+    .default('active'),
+  labels: text('labels', { mode: 'json' }).$type<string[]>(),
+  catchAll: integer('catch_all', { mode: 'boolean' }).notNull().default(false),
+  apiKeyId: text('api_key_id'),
+  ...timestamps(),
+})
+
+export const threads = sqliteTable('threads', {
+  id: text('id').primaryKey(),
+  inboxId: text('inbox_id').notNull(),
+  subject: text('subject'),
+  lastMessageAt: text('last_message_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+  messageCount: integer('message_count').notNull().default(0),
+  participants: text('participants', { mode: 'json' }).$type<
+    Array<{ email: string; name?: string }>
+  >(),
+  status: text('status', {
+    enum: ['open', 'closed', 'snoozed'],
+  })
+    .notNull()
+    .default('open'),
+  metadata: text('metadata', { mode: 'json' }).$type<Record<string, unknown>>(),
+  ...timestamps(),
+})
+
+export const inboxMessages = sqliteTable('inbox_messages', {
+  id: text('id').primaryKey(),
+  inboxId: text('inbox_id').notNull(),
+  direction: text('direction', {
+    enum: ['inbound', 'outbound'],
+  }).notNull(),
+  from: text('from').notNull(),
+  to: text('to', { mode: 'json' }).notNull().$type<string[]>(),
+  cc: text('cc', { mode: 'json' }).$type<string[]>(),
+  subject: text('subject'),
+  html: text('html'),
+  text: text('text'),
+  extractedHtml: text('extracted_html'),
+  extractedText: text('extracted_text'),
+  threadId: text('thread_id'),
+  messageId: text('message_id'),
+  inReplyTo: text('in_reply_to'),
+  references: text('references', { mode: 'json' }).$type<string[]>(),
+  sesMessageId: text('ses_message_id'),
+  attachments: text('attachments', { mode: 'json' }).$type<
+    Array<{
+      filename: string
+      contentType: string
+      size: number
+      s3Key: string
+    }>
+  >(),
+  rawMimePath: text('raw_mime_path'),
+  labels: text('labels', { mode: 'json' }).$type<string[]>(),
+  headers: text('headers', { mode: 'json' }).$type<Record<string, string>>(),
+  ...timestamps(),
+})
+
+export const webhooks = sqliteTable('webhooks', {
+  id: text('id').primaryKey(),
+  url: text('url').notNull(),
+  events: text('events', { mode: 'json' }).notNull().$type<string[]>(),
+  secret: text('secret').notNull(),
+  status: text('status', {
+    enum: ['active', 'disabled'],
+  })
+    .notNull()
+    .default('active'),
+  failureCount: integer('failure_count').notNull().default(0),
+  lastTriggeredAt: text('last_triggered_at'),
+  ...timestamps(),
+})
+
+export const webhookDeliveries = sqliteTable('webhook_deliveries', {
+  id: text('id').primaryKey(),
+  webhookId: text('webhook_id').notNull(),
+  eventType: text('event_type').notNull(),
+  payload: text('payload', { mode: 'json' }).notNull().$type<Record<string, unknown>>(),
+  responseStatus: integer('response_status'),
+  responseBody: text('response_body'),
+  attempts: integer('attempts').notNull().default(0),
+  nextRetryAt: text('next_retry_at'),
+  createdAt: text('created_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+})
+
 export const idempotencyKeys = sqliteTable('idempotency_keys', {
   key: text('key').primaryKey(),
   response: text('response', { mode: 'json' }).notNull().$type<unknown>(),

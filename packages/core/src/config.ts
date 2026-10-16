@@ -12,6 +12,18 @@ const configSchema = z.object({
   apiKey: z.string().optional(),
   webhookSecret: z.string().optional(),
   workerPollInterval: z.coerce.number().default(1000),
+  configurationSet: z.string().optional(),
+  inboundS3Bucket: z.string().optional(),
+  inboundS3KeyPrefix: z.string().optional(),
+  rateLimits: z.object({
+    emails: z.number(),
+    domains: z.number(),
+    apiKeys: z.number(),
+    templates: z.number(),
+    contacts: z.number(),
+    inboxes: z.number(),
+    webhooks: z.number(),
+  }).optional(),
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -29,6 +41,9 @@ export function loadConfig(): Config {
     apiKey: process.env.PIGEONS_API_KEY,
     webhookSecret: process.env.PIGEONS_WEBHOOK_SECRET,
     workerPollInterval: process.env.PIGEONS_WORKER_POLL_INTERVAL,
+    configurationSet: process.env.PIGEONS_CONFIGURATION_SET,
+    inboundS3Bucket: process.env.PIGEONS_INBOUND_S3_BUCKET,
+    inboundS3KeyPrefix: process.env.PIGEONS_INBOUND_S3_KEY_PREFIX,
   })
 
   if (!result.success) {

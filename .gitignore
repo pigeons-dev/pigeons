@@ -11,3 +11,4 @@ dist/
 coverage/
 *.tsbuildinfo
 data/
+e2e/data/

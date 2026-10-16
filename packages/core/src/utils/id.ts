@@ -6,12 +6,14 @@ const PREFIXES = {
   apiKey: 'key',
   job: 'job',
   inbox: 'inb',
+  inboxMessage: 'imsg',
   thread: 'thr',
   contact: 'ctc',
   template: 'tpl',
   campaign: 'cmp',
   sequence: 'seq',
   webhook: 'whk',
+  webhookDelivery: 'wdl',
 } as const
 
 type EntityType = keyof typeof PREFIXES
