@@ -7,6 +7,8 @@ import { whoamiCommand } from './commands/whoami.js'
 import { sendCommand } from './commands/send.js'
 import { emailsCommand } from './commands/emails.js'
 import { domainsCommand } from './commands/domains.js'
+import { templatesCommand } from './commands/templates.js'
+import { contactsCommand } from './commands/contacts.js'
 import { statusCommand } from './commands/status.js'
 
 const program = new Command()
@@ -23,6 +25,8 @@ program.addCommand(whoamiCommand)
 program.addCommand(sendCommand)
 program.addCommand(emailsCommand)
 program.addCommand(domainsCommand)
+program.addCommand(templatesCommand)
+program.addCommand(contactsCommand)
 program.addCommand(statusCommand)
 
 program.parse()

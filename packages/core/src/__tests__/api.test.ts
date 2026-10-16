@@ -406,3 +406,113 @@ describe('Contacts', () => {
     expect(data.deleted).toBe(true)
   })
 })
+
+async function rawPost(path: string, body: unknown) {
+  const res = await fetch(`${baseUrl}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return { status: res.status, data: (await res.json()) as any }
+}
+
+function snsNotification(payload: unknown) {
+  return { Type: 'Notification', Message: JSON.stringify(payload) }
+}
+
+describe('SES events (no auth)', () => {
+  let testEmailId: string
+
+  it('processes delivery event', async () => {
+    const email = await post('/api/v1/emails', {
+      to: 'deliver@example.com',
+      subject: 'Delivery test',
+      html: '<p>hi</p>',
+    })
+    testEmailId = email.data.id
+
+    const fakeMessageId = `ses-${Date.now()}`
+    await patch(`/api/v1/emails/${testEmailId}`, { sesMessageId: fakeMessageId }).catch(() => {})
+
+    const { status, data } = await rawPost(
+      '/api/v1/internal/ses/inbound',
+      snsNotification({
+        eventType: 'Delivery',
+        mail: { messageId: email.data.sesMessageId },
+      }),
+    )
+    expect(status).toBe(200)
+    expect(data.processed).toBe('Delivery')
+  })
+
+  it('processes bounce event and marks contact bounced', async () => {
+    const contact = await post('/api/v1/contacts', { email: 'bouncer@example.com' })
+    expect(contact.status).toBe(201)
+
+    const { status, data } = await rawPost(
+      '/api/v1/internal/ses/inbound',
+      snsNotification({
+        eventType: 'Bounce',
+        mail: { messageId: 'nonexistent-msg' },
+        bounce: {
+          bounceType: 'Permanent',
+          bouncedRecipients: [{ emailAddress: 'bouncer@example.com' }],
+        },
+      }),
+    )
+    expect(status).toBe(200)
+    expect(data.processed).toBe('Bounce')
+
+    const fetched = await get(`/api/v1/contacts/${encodeURIComponent('bouncer@example.com')}`)
+    expect(fetched.data.bounced).toBe(true)
+    expect(fetched.data.bouncedAt).toBeTruthy()
+  })
+
+  it('processes complaint event and auto-unsubscribes contact', async () => {
+    const contact = await post('/api/v1/contacts', { email: 'complainer@example.com' })
+    expect(contact.status).toBe(201)
+
+    const { status, data } = await rawPost(
+      '/api/v1/internal/ses/inbound',
+      snsNotification({
+        eventType: 'Complaint',
+        mail: { messageId: 'nonexistent-msg' },
+        complaint: {
+          complainedRecipients: [{ emailAddress: 'complainer@example.com' }],
+        },
+      }),
+    )
+    expect(status).toBe(200)
+    expect(data.processed).toBe('Complaint')
+
+    const fetched = await get(`/api/v1/contacts/${encodeURIComponent('complainer@example.com')}`)
+    expect(fetched.data.unsubscribed).toBe(true)
+    expect(fetched.data.complained).toBe(true)
+  })
+
+  it('handles SNS subscription confirmation', async () => {
+    const { status, data } = await rawPost('/api/v1/internal/ses/inbound', {
+      Type: 'SubscriptionConfirmation',
+      SubscribeURL: `${baseUrl}/health`,
+    })
+    expect(status).toBe(200)
+    expect(data.confirmed).toBe(true)
+  })
+
+  it('skips unknown event types', async () => {
+    const { status, data } = await rawPost(
+      '/api/v1/internal/ses/inbound',
+      snsNotification({ eventType: 'Send' }),
+    )
+    expect(status).toBe(200)
+    expect(data.processed).toBe('Send')
+  })
+
+  it('skips non-Notification SNS messages', async () => {
+    const { status, data } = await rawPost('/api/v1/internal/ses/inbound', {
+      Type: 'UnsubscribeConfirmation',
+    })
+    expect(status).toBe(200)
+    expect(data.skipped).toBe(true)
+  })
+})

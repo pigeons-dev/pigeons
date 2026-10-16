@@ -8,6 +8,7 @@ import { createDomainRoutes } from './routes/domains.js'
 import { createApiKeyRoutes } from './routes/api-keys.js'
 import { createTemplateRoutes } from './routes/templates.js'
 import { createContactRoutes } from './routes/contacts.js'
+import { createSesEventRoutes } from './routes/ses-events.js'
 import type { DB } from './db/index.js'
 import type { Config } from './config.js'
 
@@ -32,6 +33,8 @@ export function createApp(db: DB, config: Config): Express {
   api.use('/api-keys', rateLimit({ max: 10 }), createApiKeyRoutes(db))
   api.use('/templates', rateLimit({ max: 50 }), createTemplateRoutes(db))
   api.use('/contacts', rateLimit({ max: 50 }), createContactRoutes(db))
+
+  app.use('/api/v1/internal/ses', createSesEventRoutes(db))
 
   app.use('/api/v1', api)
 
