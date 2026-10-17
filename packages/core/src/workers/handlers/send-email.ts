@@ -1,6 +1,7 @@
 import { eq, inArray } from 'drizzle-orm'
 import { emails, contacts } from '../../db/schema.js'
 import { sendEmail } from '../../services/email-sender.js'
+import { injectTrackingPixel } from '../../services/open-tracking.js'
 import type { DB } from '../../db/index.js'
 import type { Config } from '../../config.js'
 
@@ -43,13 +44,18 @@ export async function handleSendEmail(
     'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
   }
 
+  let html = email.html ?? undefined
+  if (html && email.trackOpens) {
+    html = injectTrackingPixel(html, email.id, config)
+  }
+
   const result = await sendEmail(config, {
     from: email.from,
     to: filteredTo,
     cc: (email.cc as string[]) ?? undefined,
     bcc: (email.bcc as string[]) ?? undefined,
     subject: email.subject,
-    html: email.html ?? undefined,
+    html,
     text: email.text ?? undefined,
     headers,
   })

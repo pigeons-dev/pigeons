@@ -48,6 +48,10 @@ export const emails = sqliteTable('emails', {
   threadId: text('thread_id'),
   headers: text('headers', { mode: 'json' }).$type<Record<string, string>>(),
   tags: text('tags', { mode: 'json' }).$type<string[]>(),
+  trackOpens: integer('track_opens', { mode: 'boolean' }).notNull().default(false),
+  openCount: integer('open_count').notNull().default(0),
+  firstOpenedAt: text('first_opened_at'),
+  lastOpenedAt: text('last_opened_at'),
   idempotencyKey: text('idempotency_key'),
   scheduledAt: text('scheduled_at'),
   ...timestamps(),
@@ -258,8 +262,8 @@ export const campaigns = sqliteTable('campaigns', {
   completedAt: text('completed_at'),
   stats: text('stats', { mode: 'json' })
     .notNull()
-    .$type<{ total: number; sent: number; delivered: number; bounced: number; complained: number; failed: number }>()
-    .$defaultFn(() => ({ total: 0, sent: 0, delivered: 0, bounced: 0, complained: 0, failed: 0 })),
+    .$type<{ total: number; sent: number; delivered: number; opened: number; bounced: number; complained: number; failed: number }>()
+    .$defaultFn(() => ({ total: 0, sent: 0, delivered: 0, opened: 0, bounced: 0, complained: 0, failed: 0 })),
   ...timestamps(),
 })
 
@@ -294,8 +298,8 @@ export const sequenceSteps = sqliteTable('sequence_steps', {
   condition: text('condition', { mode: 'json' }).$type<Record<string, unknown>>(),
   stats: text('stats', { mode: 'json' })
     .notNull()
-    .$type<{ sent: number; delivered: number; bounced: number; complained: number }>()
-    .$defaultFn(() => ({ sent: 0, delivered: 0, bounced: 0, complained: 0 })),
+    .$type<{ sent: number; delivered: number; opened: number; bounced: number; complained: number }>()
+    .$defaultFn(() => ({ sent: 0, delivered: 0, opened: 0, bounced: 0, complained: 0 })),
   ...timestamps(),
 })
 

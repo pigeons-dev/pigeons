@@ -488,6 +488,104 @@ describe('inbox soft delete', () => {
 })
 
 // =====================================================
+// Open tracking — pixel injection and recording
+// =====================================================
+
+describe('open tracking', () => {
+  it('sends an email with trackOpens and injects pixel in HTML', async () => {
+    const { status, data } = await post('/v1/emails', {
+      from: FROM_EMAIL,
+      to: SES_SUCCESS,
+      subject: `E2E tracking ${uid()}`,
+      html: '<html><body><p>Track me</p></body></html>',
+      trackOpens: true,
+    })
+    expect(status).toBe(201)
+    expect(data.id).toMatch(/^msg_/)
+
+    const delivered = await waitForEmailStatus(data.id, ['sent', 'delivered'])
+    expect(['sent', 'delivered']).toContain(delivered.status)
+    expect(delivered.trackOpens).toBe(true)
+    expect(delivered.openCount).toBe(0)
+  })
+
+  it('tracking pixel endpoint returns GIF and records open', async () => {
+    const { data } = await post('/v1/emails', {
+      from: FROM_EMAIL,
+      to: SES_SUCCESS,
+      subject: `E2E pixel ${uid()}`,
+      html: '<html><body><p>Pixel test</p></body></html>',
+      trackOpens: true,
+    })
+
+    await waitForEmailStatus(data.id, ['sent', 'delivered'])
+
+    // Fetch the tracking pixel directly
+    const pixelRes = await fetch(`${ctx.baseUrl}/v1/t/${data.id}`)
+    expect(pixelRes.status).toBe(200)
+    expect(pixelRes.headers.get('content-type')).toBe('image/gif')
+    expect(pixelRes.headers.get('cache-control')).toContain('no-store')
+
+    // Wait for async DB update
+    await new Promise((r) => setTimeout(r, 500))
+
+    const { data: email } = await get(`/v1/emails/${data.id}`)
+    expect(email.openCount).toBe(1)
+    expect(email.firstOpenedAt).toBeTruthy()
+    expect(email.lastOpenedAt).toBeTruthy()
+  })
+
+  it('pixel does not record opens when trackOpens is false', async () => {
+    const { data } = await post('/v1/emails', {
+      from: FROM_EMAIL,
+      to: SES_SUCCESS,
+      subject: `E2E no-track ${uid()}`,
+      html: '<html><body><p>No tracking</p></body></html>',
+      trackOpens: false,
+    })
+
+    await waitForEmailStatus(data.id, ['sent', 'delivered'])
+
+    await fetch(`${ctx.baseUrl}/v1/t/${data.id}`)
+    await new Promise((r) => setTimeout(r, 500))
+
+    const { data: email } = await get(`/v1/emails/${data.id}`)
+    expect(email.openCount).toBe(0)
+    expect(email.firstOpenedAt).toBeNull()
+  })
+
+  it('multiple pixel fetches increment open count', async () => {
+    const { data } = await post('/v1/emails', {
+      from: FROM_EMAIL,
+      to: SES_SUCCESS,
+      subject: `E2E multi-open ${uid()}`,
+      html: '<html><body><p>Multi open</p></body></html>',
+      trackOpens: true,
+    })
+
+    await waitForEmailStatus(data.id, ['sent', 'delivered'])
+
+    await fetch(`${ctx.baseUrl}/v1/t/${data.id}`)
+    await new Promise((r) => setTimeout(r, 200))
+    await fetch(`${ctx.baseUrl}/v1/t/${data.id}`)
+    await new Promise((r) => setTimeout(r, 200))
+    await fetch(`${ctx.baseUrl}/v1/t/${data.id}`)
+    await new Promise((r) => setTimeout(r, 500))
+
+    const { data: email } = await get(`/v1/emails/${data.id}`)
+    expect(email.openCount).toBe(3)
+    expect(email.firstOpenedAt).toBeTruthy()
+    expect(email.lastOpenedAt).toBeTruthy()
+  })
+
+  it('pixel returns GIF even for non-existent email ID', async () => {
+    const res = await fetch(`${ctx.baseUrl}/v1/t/msg_doesnotexist`)
+    expect(res.status).toBe(200)
+    expect(res.headers.get('content-type')).toBe('image/gif')
+  })
+})
+
+// =====================================================
 // Edge cases — auth failures
 // =====================================================
 

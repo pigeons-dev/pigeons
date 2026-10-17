@@ -21,6 +21,7 @@ const config: Config = {
   port: 0,
   databaseUrl: ':memory:',
   workerPollInterval: 1000,
+  openTracking: false,
 }
 
 beforeAll(async () => {
@@ -90,7 +91,7 @@ describe('campaigns', () => {
       expect(data.id).toMatch(/^cmp_/)
       expect(data.name).toBe('October Newsletter')
       expect(data.status).toBe('draft')
-      expect(data.stats).toEqual({ total: 0, sent: 0, delivered: 0, bounced: 0, complained: 0, failed: 0 })
+      expect(data.stats).toEqual({ total: 0, sent: 0, delivered: 0, opened: 0, bounced: 0, complained: 0, failed: 0 })
     })
 
     it('creates a campaign with audience filter', async () => {

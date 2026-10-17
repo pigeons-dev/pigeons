@@ -22,6 +22,7 @@ const config: Config = {
   port: 0,
   databaseUrl: ':memory:',
   workerPollInterval: 1000,
+  openTracking: false,
   rateLimits: {
     emails: 10000, domains: 10000, apiKeys: 10000, templates: 10000,
     contacts: 10000, inboxes: 10000, webhooks: 10000, campaigns: 10000, sequences: 10000, topics: 10000,
@@ -144,7 +145,7 @@ describe('campaign creation edge cases', () => {
 
   it('initializes stats to zeroes', async () => {
     const { data } = await post('/v1/campaigns', { name: 'Zero Stats' })
-    expect(data.stats).toEqual({ total: 0, sent: 0, delivered: 0, bounced: 0, complained: 0, failed: 0 })
+    expect(data.stats).toEqual({ total: 0, sent: 0, delivered: 0, opened: 0, bounced: 0, complained: 0, failed: 0 })
   })
 
   it('sets createdAt and updatedAt', async () => {

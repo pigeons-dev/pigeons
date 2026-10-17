@@ -21,6 +21,7 @@ const config: Config = {
   port: 0,
   databaseUrl: ':memory:',
   workerPollInterval: 1000,
+  openTracking: false,
 }
 
 beforeAll(async () => {
