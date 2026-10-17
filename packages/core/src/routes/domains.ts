@@ -6,6 +6,7 @@ import {
   listDomains,
   deleteDomain,
 } from '../services/domain-service.js'
+import { getDomainStats } from '../services/stats-service.js'
 import type { DB } from '../db/index.js'
 import type { Config } from '../config.js'
 
@@ -39,6 +40,15 @@ export function createDomainRoutes(db: DB, config: Config): Router {
     try {
       const data = await listDomains(db)
       res.json({ data })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.get('/:id/stats', async (req, res, next) => {
+    try {
+      const stats = await getDomainStats(db, req.params.id)
+      res.json(stats)
     } catch (err) {
       next(err)
     }

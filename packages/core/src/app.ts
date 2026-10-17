@@ -16,6 +16,7 @@ import { createCampaignRoutes } from './routes/campaigns.js'
 import { createSequenceRoutes } from './routes/sequences.js'
 import { createTopicRoutes } from './routes/topics.js'
 import { createTrackingRoutes } from './routes/tracking.js'
+import { createStatsRoutes } from './routes/stats.js'
 import type { DB } from './db/index.js'
 import type { Config } from './config.js'
 
@@ -54,6 +55,7 @@ export function createApp(db: DB, config: Config): Express {
   api.use('/campaigns', rateLimit({ max: rl.campaigns }), requireScopes('campaigns'), createCampaignRoutes(db, config))
   api.use('/sequences', rateLimit({ max: rl.sequences }), requireScopes('sequences'), createSequenceRoutes(db, config))
   api.use('/topics', rateLimit({ max: rl.topics }), requireScopes('topics'), createTopicRoutes(db))
+  api.use('/stats', rateLimit({ max: rl.domains }), requireScopes('stats'), createStatsRoutes(db))
 
   app.use('/v1/t', createTrackingRoutes(db, config))
 

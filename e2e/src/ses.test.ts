@@ -586,6 +586,97 @@ describe('open tracking', () => {
 })
 
 // =====================================================
+// Deliverability stats — domain and global
+// =====================================================
+
+describe('deliverability stats', () => {
+  let domainId: string
+
+  it('adds the sender domain for stats', async () => {
+    const { status, data } = await post('/v1/domains', {
+      domain: SENDER_DOMAIN,
+    })
+    // 201 if new, 409 if already exists from another test
+    if (status === 201) {
+      domainId = data.id
+    } else {
+      // Fetch existing
+      const list = await get('/v1/domains')
+      const dom = list.data.data.find((d: any) => d.domain === SENDER_DOMAIN)
+      domainId = dom?.id
+    }
+    expect(domainId).toBeTruthy()
+  })
+
+  it('GET /v1/domains/:id/stats returns stats with rates', async () => {
+    const { status, data } = await get(`/v1/domains/${domainId}/stats`)
+    expect(status).toBe(200)
+    expect(data.domain).toBe(SENDER_DOMAIN)
+    expect(data.domainId).toBe(domainId)
+
+    expect(data.last24h).toBeTruthy()
+    expect(data.last7d).toBeTruthy()
+    expect(data.last30d).toBeTruthy()
+
+    const s = data.last30d
+    expect(typeof s.sent).toBe('number')
+    expect(typeof s.delivered).toBe('number')
+    expect(typeof s.bounced).toBe('number')
+    expect(typeof s.complained).toBe('number')
+    expect(typeof s.deliveryRate).toBe('number')
+    expect(typeof s.bounceRate).toBe('number')
+    expect(typeof s.complaintRate).toBe('number')
+    expect(typeof s.openRate).toBe('number')
+
+    // Previous tests sent emails through this domain — should have some volume
+    expect(s.sent).toBeGreaterThan(0)
+  })
+
+  it('includes warmup guidance', async () => {
+    const { data } = await get(`/v1/domains/${domainId}/stats`)
+    expect(data.warmup).toBeTruthy()
+    expect(['new', 'warming', 'established']).toContain(data.warmup.phase)
+    expect(data.warmup.dailyLimit).toBeGreaterThan(0)
+    expect(typeof data.warmup.recommendation).toBe('string')
+  })
+
+  it('returns 404 for unknown domain stats', async () => {
+    const { status } = await get('/v1/domains/dom_nonexistent/stats')
+    expect(status).toBe(404)
+  })
+
+  it('GET /v1/stats returns global stats', async () => {
+    const { status, data } = await get('/v1/stats')
+    expect(status).toBe(200)
+
+    expect(data.last24h).toBeTruthy()
+    expect(data.last7d).toBeTruthy()
+    expect(data.last30d).toBeTruthy()
+    expect(Array.isArray(data.topDomains)).toBe(true)
+
+    // Global stats should include all the emails sent in previous tests
+    expect(data.last30d.sent).toBeGreaterThan(0)
+  })
+
+  it('global stats reflect bounced and complained emails from earlier tests', async () => {
+    const { data } = await get('/v1/stats')
+    const s = data.last30d
+    // Earlier tests sent to bounce and complaint simulators
+    expect(s.bounced).toBeGreaterThanOrEqual(1)
+    expect(s.complained).toBeGreaterThanOrEqual(1)
+    expect(s.bounceRate).toBeGreaterThan(0)
+    expect(s.complaintRate).toBeGreaterThan(0)
+  })
+
+  it('top domains list is sorted by volume', async () => {
+    const { data } = await get('/v1/stats')
+    for (let i = 1; i < data.topDomains.length; i++) {
+      expect(data.topDomains[i - 1].sent).toBeGreaterThanOrEqual(data.topDomains[i].sent)
+    }
+  })
+})
+
+// =====================================================
 // Edge cases — auth failures
 // =====================================================
 
