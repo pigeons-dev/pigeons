@@ -24,7 +24,7 @@ On first run, Pigeons prints your API key to stdout. Save it.
 ### Using the SDK
 
 ```typescript
-import { Pigeons } from '@pigeons/sdk'
+import { Pigeons } from '@pigeons/pigeons-ts'
 
 const pigeons = new Pigeons({
   baseUrl: 'https://mail.yourapp.com',
@@ -73,7 +73,7 @@ curl -X POST https://mail.yourapp.com/api/v1/emails \
 | `@pigeons/core` | API server ([Apache 2.0](LICENSE)) |
 | `@pigeons/cli` | CLI tool (MIT) |
 | `@pigeons/mcp` | MCP server for AI agents (MIT) |
-| [`@pigeons/sdk`](https://github.com/pigeons-dev/pigeons-sdks) | TypeScript SDK (MIT) |
+| [`@pigeons/pigeons-ts`](https://github.com/pigeons-dev/pigeons-sdks) | TypeScript SDK (MIT) |
 
 ## Development
 
