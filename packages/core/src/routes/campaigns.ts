@@ -174,7 +174,7 @@ export function createCampaignRoutes(db: DB, config: Config): Router {
         status: newStatus,
         scheduledAt: scheduledAt ?? null,
         startedAt: scheduledAt ? null : new Date().toISOString(),
-        stats: { total: eligible.length, sent: 0, delivered: 0, bounced: 0, complained: 0, failed: 0 },
+        stats: { total: eligible.length, sent: 0, delivered: 0, bounced: 0, complained: 0, failed: 0, opened: 0 },
       }).where(eq(campaigns.id, campaign.id))
 
       await db.insert(jobs).values({

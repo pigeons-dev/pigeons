@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { campaigns, contacts, emails, templates, jobs } from '../../db/schema.js'
 import { sendEmail } from '../../services/email-sender.js'
+import { injectTrackingPixel } from '../../services/open-tracking.js'
 import { generateId } from '../../utils/id.js'
 import type { DB } from '../../db/index.js'
 import type { Config } from '../../config.js'
@@ -72,6 +73,12 @@ export async function handleSendCampaign(
       }
 
       try {
+        const trackOpens = config.openTracking
+        let htmlToSend = html
+        if (trackOpens && htmlToSend) {
+          htmlToSend = injectTrackingPixel(htmlToSend, emailId, config)
+        }
+
         await db.insert(emails).values({
           id: emailId,
           from: fromEmail,
@@ -79,6 +86,7 @@ export async function handleSendCampaign(
           subject: subjectLine,
           html,
           status: 'sending',
+          trackOpens,
           tags: ['campaign', campaignId],
         })
 
@@ -86,7 +94,7 @@ export async function handleSendCampaign(
           from,
           to: [contact.email],
           subject: subjectLine,
-          html,
+          html: htmlToSend,
           headers: {
             'List-Unsubscribe': campaign.topicId
               ? `<mailto:unsubscribe+${campaign.topicId}@${fromEmail.split('@')[1]}?subject=unsubscribe>`

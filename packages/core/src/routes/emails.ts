@@ -5,6 +5,7 @@ import { emails, jobs, templates } from '../db/schema.js'
 import { generateId } from '../utils/id.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
 import { renderTemplate, interpolateSubject } from '../services/template-renderer.js'
+import { shouldTrackOpens } from '../services/open-tracking.js'
 import type { DB } from '../db/index.js'
 import type { Config } from '../config.js'
 
@@ -21,6 +22,7 @@ const sendEmailSchema = z.object({
   tags: z.array(z.string()).optional(),
   headers: z.record(z.string()).optional(),
   scheduledAt: z.string().datetime().optional(),
+  trackOpens: z.boolean().optional(),
 })
 
 export function createEmailRoutes(db: DB, config: Config): Router {
@@ -65,6 +67,7 @@ export function createEmailRoutes(db: DB, config: Config): Router {
       const to = Array.isArray(body.to) ? body.to : [body.to]
       const id = generateId('email')
       const from = body.from ?? config.fromEmail
+      const trackOpens = shouldTrackOpens(body.trackOpens, config)
 
       await db.insert(emails).values({
         id,
@@ -78,6 +81,7 @@ export function createEmailRoutes(db: DB, config: Config): Router {
         templateId,
         templateData,
         status: 'queued',
+        trackOpens,
         tags: body.tags ?? null,
         headers: body.headers ?? null,
         idempotencyKey: (req.headers['idempotency-key'] as string) ?? null,
@@ -143,6 +147,8 @@ export function createEmailRoutes(db: DB, config: Config): Router {
         if (!html && !text) throw new ValidationError('Either html, text, or templateId is required')
         if (!subject) throw new ValidationError('Subject is required')
 
+        const trackOpens = shouldTrackOpens(item.trackOpens, config)
+
         await db.insert(emails).values({
           id,
           from,
@@ -155,6 +161,7 @@ export function createEmailRoutes(db: DB, config: Config): Router {
           templateId,
           templateData,
           status: 'queued',
+          trackOpens,
           tags: item.tags ?? null,
           headers: item.headers ?? null,
         })

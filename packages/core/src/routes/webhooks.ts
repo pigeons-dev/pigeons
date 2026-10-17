@@ -13,6 +13,7 @@ import type { DB } from '../db/index.js'
 const VALID_WEBHOOK_EVENTS = [
   'email.sent',
   'email.delivered',
+  'email.opened',
   'email.bounced',
   'email.complained',
   'email.failed',

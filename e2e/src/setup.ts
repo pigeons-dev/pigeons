@@ -45,6 +45,8 @@ const e2eConfig: Config = {
   },
   fromEmail: process.env.PIGEONS_FROM_EMAIL!,
   workerPollInterval: 500,
+  openTracking: true,
+  baseUrl: `http://localhost:${port}`,
   configurationSet: 'pigeons-tracking',
   inboundS3Bucket: 'pigeons-inbound-fibre-dev',
   inboundS3KeyPrefix: 'inbound/',

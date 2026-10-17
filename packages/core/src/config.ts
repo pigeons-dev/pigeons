@@ -15,6 +15,8 @@ const configSchema = z.object({
   configurationSet: z.string().optional(),
   inboundS3Bucket: z.string().optional(),
   inboundS3KeyPrefix: z.string().optional(),
+  openTracking: z.coerce.boolean().default(false),
+  baseUrl: z.string().optional(),
   rateLimits: z.object({
     emails: z.number(),
     domains: z.number(),
@@ -47,6 +49,8 @@ export function loadConfig(): Config {
     configurationSet: process.env.PIGEONS_CONFIGURATION_SET,
     inboundS3Bucket: process.env.PIGEONS_INBOUND_S3_BUCKET,
     inboundS3KeyPrefix: process.env.PIGEONS_INBOUND_S3_KEY_PREFIX,
+    openTracking: process.env.PIGEONS_OPEN_TRACKING,
+    baseUrl: process.env.PIGEONS_BASE_URL,
   })
 
   if (!result.success) {

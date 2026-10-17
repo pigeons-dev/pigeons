@@ -9,6 +9,7 @@ import {
   jobs,
 } from '../../db/schema.js'
 import { sendEmail } from '../../services/email-sender.js'
+import { injectTrackingPixel } from '../../services/open-tracking.js'
 import { generateId } from '../../utils/id.js'
 import type { DB } from '../../db/index.js'
 import type { Config } from '../../config.js'
@@ -110,6 +111,12 @@ export async function handleProcessSequenceStep(
     }
 
     const emailId = generateId('email')
+    const trackOpens = config.openTracking
+    let htmlToSend = html
+    if (trackOpens && htmlToSend) {
+      htmlToSend = injectTrackingPixel(htmlToSend, emailId, config)
+    }
+
     await db.insert(emails).values({
       id: emailId,
       from: config.fromEmail,
@@ -117,6 +124,7 @@ export async function handleProcessSequenceStep(
       subject,
       html,
       status: 'sending',
+      trackOpens,
       tags: ['sequence', sequence.id, step.id],
     })
 
@@ -125,7 +133,7 @@ export async function handleProcessSequenceStep(
         from: config.fromEmail,
         to: [contact.email],
         subject,
-        html,
+        html: htmlToSend,
         headers: {
           'List-Unsubscribe': step.topicId
             ? `<mailto:unsubscribe+${step.topicId}@${config.fromEmail.split('@')[1]}?subject=unsubscribe>`
