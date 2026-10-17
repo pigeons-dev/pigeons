@@ -35,14 +35,19 @@ export interface SesNotification {
   }
 }
 
+let s3Client: S3Client | null = null
+
 function getS3Client(config: Config): S3Client {
-  return new S3Client({
-    region: config.aws.region,
-    credentials: {
-      accessKeyId: config.aws.accessKeyId,
-      secretAccessKey: config.aws.secretAccessKey,
-    },
-  })
+  if (!s3Client) {
+    s3Client = new S3Client({
+      region: config.aws.region,
+      credentials: {
+        accessKeyId: config.aws.accessKeyId,
+        secretAccessKey: config.aws.secretAccessKey,
+      },
+    })
+  }
+  return s3Client
 }
 
 export async function processInboundEmail(
@@ -52,14 +57,26 @@ export async function processInboundEmail(
 ): Promise<{ messageId: string; inboxId: string; threadId: string } | null> {
   const { mail, receipt } = notification
 
-  // Fetch raw MIME from S3.
-  // When the notification comes from a receipt rule's SNS action (not S3 action),
-  // receipt.action won't have bucketName/objectKey — derive from config + messageId.
+  if (receipt.spamVerdict?.status === 'FAIL') return null
+  if (receipt.virusVerdict?.status === 'FAIL') return null
+
   const s3 = getS3Client(config)
-  const bucket = receipt.action.bucketName ?? config.inboundS3Bucket
+
+  const configBucket = config.inboundS3Bucket
+  const bucket = receipt.action.bucketName ?? configBucket
+  if (!bucket) throw new Error('Cannot determine S3 bucket for inbound email')
+
+  if (configBucket && bucket !== configBucket) {
+    throw new Error(`Unexpected S3 bucket '${bucket}', expected '${configBucket}'`)
+  }
+
   const key = receipt.action.objectKey ?? `${config.inboundS3KeyPrefix ?? 'inbound/'}${mail.messageId}`
 
-  if (!bucket) throw new Error('Cannot determine S3 bucket for inbound email')
+  if (/(?:^|[/\\])\.\.(?:[/\\]|$)/.test(key) || key.startsWith('/')) {
+    throw new Error(`Invalid S3 key: ${key}`)
+  }
+
+  const MAX_INBOUND_SIZE = 30 * 1024 * 1024
 
   const s3Response = await s3.send(
     new GetObjectCommand({ Bucket: bucket, Key: key }),
@@ -68,8 +85,17 @@ export async function processInboundEmail(
   const bodyStream = s3Response.Body
   if (!bodyStream) throw new Error(`Empty S3 object: ${bucket}/${key}`)
 
+  if (s3Response.ContentLength && s3Response.ContentLength > MAX_INBOUND_SIZE) {
+    throw new Error(`Inbound email too large: ${s3Response.ContentLength} bytes (max ${MAX_INBOUND_SIZE})`)
+  }
+
   const bodyBytes = await bodyStream.transformToByteArray()
-  const parsed = await simpleParser(Buffer.from(bodyBytes))
+
+  if (bodyBytes.length > MAX_INBOUND_SIZE) {
+    throw new Error(`Inbound email too large: ${bodyBytes.length} bytes (max ${MAX_INBOUND_SIZE})`)
+  }
+
+  const parsed = await simpleParser(Buffer.from(bodyBytes.buffer, bodyBytes.byteOffset, bodyBytes.byteLength))
 
   // Route to inbox by matching destination addresses
   const destination = mail.destination.map((d) => d.toLowerCase())
@@ -103,12 +129,16 @@ export async function processInboundEmail(
   const extractedHtml = parsed.html ? extractHtmlReply(parsed.html as string) : null
 
   // Parse attachments
-  const attachments = (parsed.attachments ?? []).map((att) => ({
-    filename: att.filename ?? 'attachment',
-    contentType: att.contentType,
-    size: att.size,
-    s3Key: `${key}/attachments/${att.filename ?? att.cid ?? 'unnamed'}`,
-  }))
+  const attachments = (parsed.attachments ?? []).map((att) => {
+    const rawName = att.filename ?? att.cid ?? 'unnamed'
+    const safeName = rawName.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.{2,}/g, '.')
+    return {
+      filename: att.filename ?? 'attachment',
+      contentType: att.contentType,
+      size: att.size,
+      s3Key: `${key}/attachments/${safeName}`,
+    }
+  })
 
   // Store message
   const messageId = generateId('inboxMessage')

@@ -104,8 +104,8 @@ export async function handleProcessSequenceStep(
     const data = step.templateData as Record<string, string> | null
     if (data) {
       for (const [key, value] of Object.entries(data)) {
-        html = html.replace(new RegExp(`{{${key}}}`, 'g'), String(value))
-        subject = subject.replace(new RegExp(`{{${key}}}`, 'g'), String(value))
+        html = html.split(`{{${key}}}`).join(String(value))
+        subject = subject.split(`{{${key}}}`).join(String(value))
       }
     }
 

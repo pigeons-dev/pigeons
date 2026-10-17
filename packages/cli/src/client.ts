@@ -7,7 +7,7 @@ export function createClient(config: ResolvedConfig) {
       method,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.apiKey}`,
+        'x-api-key': config.apiKey,
       },
       body: body ? JSON.stringify(body) : undefined,
     })

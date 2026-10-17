@@ -1,3 +1,4 @@
+import vm from 'node:vm'
 import { render } from '@react-email/render'
 import { transform } from 'sucrase'
 
@@ -36,21 +37,28 @@ async function buildElement(
   }
 
   const componentNames = Object.keys(components)
-  const fn = new Function(
-    'React',
-    'components',
-    'data',
-    `const { ${componentNames.join(', ')} } = components;
-    const createElement = React.createElement;
+  const sandbox = Object.create(null) as Record<string, unknown>
+  sandbox.React = React
+  sandbox.components = components
+  sandbox.data = data
+  sandbox.createElement = React.createElement
+  sandbox.__result = undefined
+  for (const name of componentNames) {
+    sandbox[name] = (components as Record<string, unknown>)[name]
+  }
+
+  const script = `
     ${code}
     const _exported = typeof Template === 'function' ? Template
       : typeof exports !== 'undefined' && typeof exports.default === 'function' ? exports.default
       : null;
-    if (_exported) return _exported(data);
-    throw new Error('Template must export a Template function');`,
-  )
+    if (_exported) __result = _exported(data);
+    else throw new Error('Template must export a Template function');
+  `
 
-  return fn(React, components, data)
+  vm.runInNewContext(script, sandbox, { timeout: 1000 })
+
+  return sandbox.__result as React.ReactElement
 }
 
 export function interpolateSubject(

@@ -16,6 +16,8 @@ function validateSnsMessage(body: Record<string, unknown>): Promise<void> {
   })
 }
 
+const SNS_URL_PATTERN = /^https:\/\/sns\.[a-z0-9-]+\.amazonaws\.com\//
+
 export function createSesInboundRoutes(db: DB, config: Config): Router {
   const router = Router()
 
@@ -23,17 +25,22 @@ export function createSesInboundRoutes(db: DB, config: Config): Router {
     try {
       const body = req.body
 
-      // SNS sends content-type text/plain, but we parse as JSON via express.json
       const messageType = req.headers['x-amz-sns-message-type'] as string | undefined
 
-      await validateSnsMessage(body)
+      try {
+        await validateSnsMessage(body)
+      } catch {
+        res.status(403).json({ error: 'Invalid SNS signature' })
+        return
+      }
 
       if (messageType === 'SubscriptionConfirmation') {
-        // Auto-confirm the subscription
         const subscribeUrl = body.SubscribeURL as string
-        if (subscribeUrl) {
-          await fetch(subscribeUrl)
+        if (!subscribeUrl || !SNS_URL_PATTERN.test(subscribeUrl)) {
+          res.status(403).json({ error: 'Invalid SubscribeURL' })
+          return
         }
+        await fetch(subscribeUrl)
         res.json({ confirmed: true })
         return
       }

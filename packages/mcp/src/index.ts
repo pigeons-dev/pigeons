@@ -53,7 +53,7 @@ async function api<T = unknown>(
   const res = await fetch(url, {
     method: opts.method ?? (opts.body ? 'POST' : 'GET'),
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
     },
     body: opts.body ? JSON.stringify(opts.body) : undefined,

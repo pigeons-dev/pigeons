@@ -1,4 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
+
+vi.mock('../utils/url-validation.js', () => ({
+  validateWebhookUrl: vi.fn().mockResolvedValue(undefined),
+}))
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
 import { migrate } from 'drizzle-orm/libsql/migrator'
@@ -69,7 +73,7 @@ afterAll(() => {
 
 async function get(path: string) {
   const res = await fetch(`${baseUrl}${path}`, {
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: { 'x-api-key': apiKey },
   })
   return { status: res.status, data: (await res.json()) as any }
 }
@@ -78,7 +82,7 @@ async function post(path: string, body: unknown) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
@@ -90,7 +94,7 @@ async function patch(path: string, body: unknown) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'PATCH',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
@@ -101,7 +105,7 @@ async function patch(path: string, body: unknown) {
 async function del(path: string) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: { 'x-api-key': apiKey },
   })
   return { status: res.status, data: (await res.json()) as any }
 }
@@ -130,7 +134,7 @@ describe('auth on inbox endpoints', () => {
 
   it('rejects invalid bearer token on inbox endpoints', async () => {
     const res = await fetch(`${baseUrl}/v1/inboxes`, {
-      headers: { Authorization: 'Bearer pgn_garbage' },
+      headers: { 'x-api-key': 'pgn_garbage' },
     })
     expect(res.status).toBe(401)
   })

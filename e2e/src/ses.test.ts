@@ -505,7 +505,7 @@ describe('auth edge cases', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: 'Bearer pgn_invalid_key_12345',
+        'x-api-key': 'pgn_invalid_key_12345',
       },
     })
     expect(res.status).toBe(401)

@@ -16,6 +16,27 @@ function getClient(config: Config): SESv2Client {
   return client
 }
 
+/** Headers that must not be overridden via the user-supplied headers field. */
+const BLOCKED_HEADERS = new Set([
+  'from',
+  'to',
+  'cc',
+  'bcc',
+  'subject',
+  'reply-to',
+  'return-path',
+  'content-type',
+  'mime-version',
+  'content-transfer-encoding',
+  'dkim-signature',
+  'received',
+  'x-ses-configuration-set',
+  'x-ses-message-tags',
+  'x-ses-source-arn',
+  'x-ses-from-arn',
+  'feedback-id',
+])
+
 interface SendParams {
   from: string
   to: string[]
@@ -56,7 +77,10 @@ export async function sendEmail(
   }
 
   const emailHeaders = params.headers
-    ? Object.entries(params.headers).map(([Name, Value]) => ({ Name, Value }))
+    ? Object.entries(params.headers)
+        .filter(([name]) => !BLOCKED_HEADERS.has(name.toLowerCase()))
+        .filter(([name, value]) => !/[\r\n]/.test(name) && !/[\r\n]/.test(value))
+        .map(([Name, Value]) => ({ Name, Value }))
     : undefined
 
   const configSet = params.configurationSet ?? config.configurationSet

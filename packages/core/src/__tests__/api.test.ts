@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
 import { migrate } from 'drizzle-orm/libsql/migrator'
@@ -8,6 +8,16 @@ import { generateApiKey } from '../utils/crypto.js'
 import { generateId } from '../utils/id.js'
 import type { Config } from '../config.js'
 import type { Server } from 'node:http'
+
+vi.mock('sns-validator', () => {
+  return {
+    default: class {
+      validate(_msg: unknown, cb: (err: Error | null) => void) {
+        cb(null)
+      }
+    },
+  }
+})
 
 let server: Server
 let baseUrl: string
@@ -57,7 +67,7 @@ afterAll(() => {
 
 async function get(path: string) {
   const res = await fetch(`${baseUrl}${path}`, {
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: { 'x-api-key': apiKey },
   })
   return { status: res.status, data: (await res.json()) as any }
 }
@@ -66,7 +76,7 @@ async function post(path: string, body: unknown) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
@@ -78,7 +88,7 @@ async function patch(path: string, body: unknown) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'PATCH',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
@@ -89,7 +99,7 @@ async function patch(path: string, body: unknown) {
 async function del(path: string) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: { 'x-api-key': apiKey },
   })
   return { status: res.status, data: (await res.json()) as any }
 }
@@ -111,14 +121,14 @@ describe('auth', () => {
 
   it('rejects invalid api keys', async () => {
     const res = await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: 'Bearer pgn_invalid' },
+      headers: { 'x-api-key': 'pgn_invalid' },
     })
     expect(res.status).toBe(401)
   })
 
   it('rejects non-pgn tokens', async () => {
     const res = await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: 'Bearer some_random_token' },
+      headers: { 'x-api-key': 'some_random_token' },
     })
     expect(res.status).toBe(401)
   })
@@ -238,7 +248,7 @@ describe('API keys', () => {
 
     const res = await fetch(`${baseUrl}/v1/api-keys/${key.id}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${apiKey}` },
+      headers: { 'x-api-key': apiKey },
     })
     expect(res.status).toBe(200)
   })
@@ -408,9 +418,13 @@ describe('Contacts', () => {
 })
 
 async function rawPost(path: string, body: unknown) {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (body && typeof body === 'object' && 'Type' in body) {
+    headers['x-amz-sns-message-type'] = (body as any).Type
+  }
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(body),
   })
   return { status: res.status, data: (await res.json()) as any }
@@ -491,12 +505,33 @@ describe('SES events (no auth)', () => {
   })
 
   it('handles SNS subscription confirmation', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = ((...args: Parameters<typeof fetch>) => {
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] as Request).url
+      if (url.startsWith('https://sns.')) {
+        return Promise.resolve(new Response('ok'))
+      }
+      return originalFetch(...args)
+    }) as typeof fetch
+    try {
+      const { status, data } = await rawPost('/v1/internal/ses/events', {
+        Type: 'SubscriptionConfirmation',
+        SubscribeURL: 'https://sns.us-east-1.amazonaws.com/confirm?token=abc',
+      })
+      expect(status).toBe(200)
+      expect(data.confirmed).toBe(true)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('rejects subscription confirmation with non-SNS URL', async () => {
     const { status, data } = await rawPost('/v1/internal/ses/events', {
       Type: 'SubscriptionConfirmation',
-      SubscribeURL: `${baseUrl}/health`,
+      SubscribeURL: 'https://evil.example.com/pwned',
     })
-    expect(status).toBe(200)
-    expect(data.confirmed).toBe(true)
+    expect(status).toBe(403)
+    expect(data.error).toBe('Invalid SubscribeURL')
   })
 
   it('skips unknown event types', async () => {

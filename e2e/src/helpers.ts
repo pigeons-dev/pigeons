@@ -19,7 +19,7 @@ export async function request(
     method,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${ctx.apiKey}`,
+      'x-api-key': ctx.apiKey,
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,

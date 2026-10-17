@@ -3,6 +3,7 @@ import { eq, and, desc, lt } from 'drizzle-orm'
 import { webhooks, webhookDeliveries, jobs } from '../db/schema.js'
 import { generateId } from '../utils/id.js'
 import { NotFoundError } from '../utils/errors.js'
+import { validateWebhookUrl } from '../utils/url-validation.js'
 import type { DB } from '../db/index.js'
 
 const VALID_EVENTS = [
@@ -10,11 +11,15 @@ const VALID_EVENTS = [
   'email.delivered',
   'email.bounced',
   'email.complained',
+  'email.failed',
   'inbox.message.received',
   'inbox.message.sent',
   'contact.created',
   'contact.updated',
   'contact.unsubscribed',
+  'campaign.sent',
+  'campaign.completed',
+  'sequence.step.sent',
 ] as const
 
 export interface CreateWebhookInput {
@@ -155,6 +160,21 @@ export async function deliverWebhook(db: DB, deliveryId: string) {
     .limit(1)
 
   if (!webhook || webhook.status !== 'active') return
+
+  // Validate URL before each delivery to prevent DNS rebinding attacks
+  try {
+    await validateWebhookUrl(webhook.url)
+  } catch {
+    await db
+      .update(webhookDeliveries)
+      .set({
+        responseBody: 'Webhook URL failed SSRF validation',
+        attempts: delivery.attempts + 1,
+      })
+      .where(eq(webhookDeliveries.id, deliveryId))
+    await handleDeliveryFailure(db, webhook.id, deliveryId, delivery.attempts + 1)
+    return
+  }
 
   const body = JSON.stringify(delivery.payload)
   const signature = signPayload(body, webhook.secret)

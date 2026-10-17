@@ -66,8 +66,8 @@ export async function handleSendCampaign(
       const data = campaign.templateData as Record<string, string> | null
       if (data) {
         for (const [key, value] of Object.entries(data)) {
-          html = html.replace(new RegExp(`{{${key}}}`, 'g'), String(value))
-          subjectLine = subjectLine.replace(new RegExp(`{{${key}}}`, 'g'), String(value))
+          html = html.split(`{{${key}}}`).join(String(value))
+          subjectLine = subjectLine.split(`{{${key}}}`).join(String(value))
         }
       }
 
