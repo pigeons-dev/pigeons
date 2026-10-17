@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "pigeons": {
+      "command": "npx",
+      "args": ["@pigeons/mcp"],
+      "env": {
+        "PIGEONS_URL": "http://localhost:3891",
+        "PIGEONS_API_KEY": "pgn_..."
+      }
+    }
+  }
+}
