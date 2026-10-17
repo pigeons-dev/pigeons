@@ -1,0 +1,15 @@
+{
+  "name": "pigeons-with-typescript",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@pigeons/pigeons-ts": "^0.1.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.0"
+  }
+}
