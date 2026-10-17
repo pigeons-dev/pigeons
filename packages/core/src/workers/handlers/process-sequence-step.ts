@@ -77,6 +77,18 @@ export async function handleProcessSequenceStep(
     return
   }
 
+  if (step.topicId) {
+    const unsubs = (contact.unsubscribedTopics ?? []) as string[]
+    if (unsubs.includes(step.topicId)) {
+      await db.update(sequenceEnrollments).set({ status: 'exited' }).where(eq(sequenceEnrollments.id, enrollmentId))
+      const seqStats = sequence.stats
+      await db.update(sequences).set({
+        stats: { ...seqStats, active: seqStats.active - 1, exited: seqStats.exited + 1 },
+      }).where(eq(sequences.id, sequence.id))
+      return
+    }
+  }
+
   if (step.type === 'email') {
     let html = ''
     let subject = step.subject ?? ''
@@ -115,7 +127,9 @@ export async function handleProcessSequenceStep(
         subject,
         html,
         headers: {
-          'List-Unsubscribe': `<mailto:unsubscribe@${config.fromEmail.split('@')[1]}?subject=unsubscribe>`,
+          'List-Unsubscribe': step.topicId
+            ? `<mailto:unsubscribe+${step.topicId}@${config.fromEmail.split('@')[1]}?subject=unsubscribe>`
+            : `<mailto:unsubscribe@${config.fromEmail.split('@')[1]}?subject=unsubscribe>`,
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         },
       })

@@ -12,6 +12,7 @@ const PREFIXES = {
   template: 'tpl',
   campaign: 'cmp',
   sequence: 'seq',
+  subscriptionTopic: 'top',
   sequenceStep: 'stp',
   sequenceEnrollment: 'enr',
   webhook: 'whk',

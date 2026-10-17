@@ -51,6 +51,14 @@ export async function handleSendCampaign(
         continue
       }
 
+      if (campaign.topicId) {
+        const unsubs = (contact.unsubscribedTopics ?? []) as string[]
+        if (unsubs.includes(campaign.topicId)) {
+          stats.failed++
+          continue
+        }
+      }
+
       const emailId = generateId('email')
       let html = template?.body ?? ''
       let subjectLine = subject
@@ -80,7 +88,9 @@ export async function handleSendCampaign(
           subject: subjectLine,
           html,
           headers: {
-            'List-Unsubscribe': `<mailto:unsubscribe@${fromEmail.split('@')[1]}?subject=unsubscribe>`,
+            'List-Unsubscribe': campaign.topicId
+              ? `<mailto:unsubscribe+${campaign.topicId}@${fromEmail.split('@')[1]}?subject=unsubscribe>`
+              : `<mailto:unsubscribe@${fromEmail.split('@')[1]}?subject=unsubscribe>`,
             'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
           },
         })

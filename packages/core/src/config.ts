@@ -25,6 +25,7 @@ const configSchema = z.object({
     webhooks: z.number(),
     campaigns: z.number(),
     sequences: z.number(),
+    topics: z.number(),
   }).optional(),
 })
 

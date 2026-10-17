@@ -554,6 +554,65 @@ server.tool(
 )
 
 // ---------------------------------------------------------------------------
+// Topic tools
+// ---------------------------------------------------------------------------
+
+server.tool(
+  'create_topic',
+  'Create a subscription topic for per-topic unsubscribe management.',
+  {
+    name: z.string().describe('Topic name (e.g. "marketing", "product-updates")'),
+    description: z.string().optional().describe('Topic description'),
+  },
+  async (params) => {
+    const result = await api('/topics', { body: params })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'list_topics',
+  'List subscription topics.',
+  {
+    limit: z.number().optional().describe('Max results'),
+    cursor: z.string().optional().describe('Pagination cursor'),
+  },
+  async (params) => {
+    const result = await api('/topics', {
+      params: {
+        limit: params.limit?.toString(),
+        cursor: params.cursor,
+      },
+    })
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'get_topic',
+  'Get subscription topic details.',
+  {
+    topicId: z.string().describe('Topic ID'),
+  },
+  async ({ topicId }) => {
+    const result = await api(`/topics/${topicId}`)
+    return textResult(result)
+  },
+)
+
+server.tool(
+  'delete_topic',
+  'Delete a subscription topic.',
+  {
+    topicId: z.string().describe('Topic ID to delete'),
+  },
+  async ({ topicId }) => {
+    const result = await api(`/topics/${topicId}`, { method: 'DELETE' })
+    return textResult(result)
+  },
+)
+
+// ---------------------------------------------------------------------------
 // Resources
 // ---------------------------------------------------------------------------
 

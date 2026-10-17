@@ -624,3 +624,384 @@ describe('email list and filtering', () => {
     }
   })
 })
+
+// =====================================================
+// Subscription topics — CRUD
+// =====================================================
+
+describe('subscription topics', () => {
+  let topicId: string
+  let topicName: string
+
+  it('creates a topic', async () => {
+    topicName = `E2E Topic ${uid()}`
+    const { status, data } = await post('/v1/topics', {
+      name: topicName,
+      description: 'E2E test topic',
+    })
+    expect(status).toBe(201)
+    expect(data.id).toMatch(/^top_/)
+    expect(data.name).toBe(topicName)
+    topicId = data.id
+  })
+
+  it('lists topics', async () => {
+    const { status, data } = await get('/v1/topics')
+    expect(status).toBe(200)
+    expect(data.data.some((t: any) => t.id === topicId)).toBe(true)
+  })
+
+  it('gets a topic by ID', async () => {
+    const { status, data } = await get(`/v1/topics/${topicId}`)
+    expect(status).toBe(200)
+    expect(data.id).toBe(topicId)
+    expect(data.description).toBe('E2E test topic')
+  })
+
+  it('updates a topic', async () => {
+    const { status, data } = await patch(`/v1/topics/${topicId}`, {
+      description: 'Updated description',
+    })
+    expect(status).toBe(200)
+    expect(data.description).toBe('Updated description')
+  })
+
+  it('rejects duplicate topic name', async () => {
+    const { status } = await post('/v1/topics', { name: topicName })
+    expect(status).toBe(409)
+  })
+
+  it('deletes a topic', async () => {
+    const temp = await post('/v1/topics', { name: `Temp ${uid()}` })
+    const { status } = await del(`/v1/topics/${temp.data.id}`)
+    expect(status).toBe(204)
+
+    const { status: getStatus } = await get(`/v1/topics/${temp.data.id}`)
+    expect(getStatus).toBe(404)
+  })
+})
+
+// =====================================================
+// Per-topic unsubscribe and resubscribe
+// =====================================================
+
+describe('per-topic unsubscribe', () => {
+  let contactId: string
+  let topicAId: string
+  let topicBId: string
+
+  it('sets up contact and topics', async () => {
+    const contact = await post('/v1/contacts', { email: `topic-unsub-${uid()}@example.com` })
+    expect(contact.status).toBe(201)
+    contactId = contact.data.id
+
+    const topicA = await post('/v1/topics', { name: `Topic A ${uid()}` })
+    topicAId = topicA.data.id
+
+    const topicB = await post('/v1/topics', { name: `Topic B ${uid()}` })
+    topicBId = topicB.data.id
+  })
+
+  it('unsubscribes from a single topic', async () => {
+    const { status, data } = await post(`/v1/contacts/${contactId}/unsubscribe`, {
+      topicId: topicAId,
+    })
+    expect(status).toBe(200)
+    expect(data.unsubscribedTopics).toContain(topicAId)
+    expect(data.unsubscribed).toBe(false)
+  })
+
+  it('unsubscribes from a second topic (additive)', async () => {
+    const { data } = await post(`/v1/contacts/${contactId}/unsubscribe`, {
+      topicId: topicBId,
+    })
+    expect(data.unsubscribedTopics).toContain(topicAId)
+    expect(data.unsubscribedTopics).toContain(topicBId)
+    expect(data.unsubscribedTopics).toHaveLength(2)
+  })
+
+  it('does not duplicate on repeated unsubscribe', async () => {
+    const { data } = await post(`/v1/contacts/${contactId}/unsubscribe`, {
+      topicId: topicAId,
+    })
+    expect(data.unsubscribedTopics).toHaveLength(2)
+  })
+
+  it('resubscribes from one topic only', async () => {
+    const { data } = await post(`/v1/contacts/${contactId}/resubscribe`, {
+      topicId: topicAId,
+    })
+    expect(data.unsubscribedTopics).not.toContain(topicAId)
+    expect(data.unsubscribedTopics).toContain(topicBId)
+  })
+
+  it('rejects unsubscribe with invalid topic ID', async () => {
+    const { status } = await post(`/v1/contacts/${contactId}/unsubscribe`, {
+      topicId: 'top_nonexistent',
+    })
+    expect(status).toBe(404)
+  })
+})
+
+// =====================================================
+// Campaign lifecycle and topic filtering
+// =====================================================
+
+describe('campaign with topic filtering', () => {
+  let templateId: string
+  let topicId: string
+  let subscribedId: string
+  let unsubscribedId: string
+  let campaignId: string
+  const campaignTag = `campaign-e2e-${uid()}`
+
+  it('creates a template', async () => {
+    const tag = uid()
+    const tpl = await post('/v1/templates', {
+      slug: `e2e-cmp-${tag}`,
+      name: `Campaign Tpl ${tag}`,
+      subject: `Campaign E2E ${tag}`,
+      body: '<p>Hello from campaign E2E</p>',
+    })
+    expect(tpl.status).toBe(201)
+    templateId = tpl.data.id
+  })
+
+  it('creates a topic and two tagged contacts', async () => {
+    const topic = await post('/v1/topics', { name: `Cmp Topic ${uid()}` })
+    topicId = topic.data.id
+
+    const sub = await post('/v1/contacts', {
+      email: SES_SUCCESS,
+      tags: [campaignTag],
+    })
+    subscribedId = sub.data.id
+
+    const unsub = await post('/v1/contacts', {
+      email: `topic-skip-${uid()}@example.com`,
+      tags: [campaignTag],
+    })
+    unsubscribedId = unsub.data.id
+
+    await post(`/v1/contacts/${unsubscribedId}/unsubscribe`, { topicId })
+  })
+
+  it('creates a campaign with topicId and audience filter', async () => {
+    const { status, data } = await post('/v1/campaigns', {
+      name: `E2E Campaign ${uid()}`,
+      templateId,
+      topicId,
+      audienceFilter: { tags: { contains: campaignTag } },
+    })
+    expect(status).toBe(201)
+    expect(data.id).toMatch(/^cmp_/)
+    expect(data.status).toBe('draft')
+    expect(data.topicId).toBe(topicId)
+    campaignId = data.id
+  })
+
+  it('sends the campaign', async () => {
+    const { status, data } = await post(`/v1/campaigns/${campaignId}/send`, {})
+    expect(status).toBe(200)
+    expect(['sending', 'sent']).toContain(data.status)
+  })
+
+  it('campaign completes with correct stats', async () => {
+    const campaign = await poll(
+      async () => {
+        const { data } = await get(`/v1/campaigns/${campaignId}`)
+        return data?.status === 'sent' ? data : null
+      },
+      { timeoutMs: 30_000, label: 'campaign sent' },
+    )
+
+    expect(campaign.status).toBe('sent')
+    expect(campaign.stats.sent).toBe(1)
+    expect(campaign.stats.failed).toBe(1)
+  })
+
+  it('sent email only to the subscribed contact', async () => {
+    const emails = await poll(
+      async () => {
+        const { data } = await get('/v1/emails?limit=50')
+        const campaignEmails = (data.data ?? []).filter(
+          (e: any) => e.tags?.includes(campaignId),
+        )
+        return campaignEmails.length > 0 ? campaignEmails : null
+      },
+      { timeoutMs: 15_000, label: 'campaign email created' },
+    )
+    expect(emails).toHaveLength(1)
+    expect(emails[0].to).toContain(SES_SUCCESS)
+  })
+})
+
+// =====================================================
+// Campaign lifecycle — update, cancel, pause/resume
+// =====================================================
+
+describe('campaign lifecycle', () => {
+  let campaignId: string
+
+  it('creates a draft campaign', async () => {
+    const { status, data } = await post('/v1/campaigns', {
+      name: `Lifecycle ${uid()}`,
+      subject: 'Lifecycle test',
+    })
+    expect(status).toBe(201)
+    expect(data.status).toBe('draft')
+    campaignId = data.id
+  })
+
+  it('updates a draft campaign', async () => {
+    const { status, data } = await patch(`/v1/campaigns/${campaignId}`, {
+      subject: 'Updated subject',
+    })
+    expect(status).toBe(200)
+    expect(data.subject).toBe('Updated subject')
+  })
+
+  it('lists campaigns', async () => {
+    const { status, data } = await get('/v1/campaigns')
+    expect(status).toBe(200)
+    expect(data.data.some((c: any) => c.id === campaignId)).toBe(true)
+  })
+
+  it('gets campaign by ID', async () => {
+    const { status, data } = await get(`/v1/campaigns/${campaignId}`)
+    expect(status).toBe(200)
+    expect(data.id).toBe(campaignId)
+  })
+
+  it('cancels a scheduled campaign', async () => {
+    const tag = uid()
+    const cmp = await post('/v1/campaigns', {
+      name: `Cancel ${tag}`,
+      subject: `Cancel ${tag}`,
+    })
+    const contactTag = `cancel-${tag}`
+    await post('/v1/contacts', {
+      email: `cancel-${tag}@example.com`,
+      tags: [contactTag],
+    })
+
+    await post(`/v1/campaigns/${cmp.data.id}/send`, {
+      scheduledAt: new Date(Date.now() + 3_600_000).toISOString(),
+    })
+
+    const cancel = await post(`/v1/campaigns/${cmp.data.id}/cancel`, {})
+    expect(cancel.status).toBe(200)
+    expect(cancel.data.status).toBe('cancelled')
+  })
+})
+
+// =====================================================
+// Sequences — create, activate, enroll, topic filtering
+// =====================================================
+
+describe('sequence with topic filtering', () => {
+  let sequenceId: string
+  let topicId: string
+  let contactId: string
+  let enrollmentId: string
+
+  it('creates a topic for the sequence', async () => {
+    const topic = await post('/v1/topics', { name: `Seq Topic ${uid()}` })
+    topicId = topic.data.id
+  })
+
+  it('creates a sequence with a topic email step', async () => {
+    const { status, data } = await post('/v1/sequences', {
+      name: `E2E Seq ${uid()}`,
+      steps: [
+        { type: 'email', subject: 'Step 1', topicId },
+      ],
+    })
+    expect(status).toBe(201)
+    expect(data.id).toMatch(/^seq_/)
+    expect(data.steps).toHaveLength(1)
+    expect(data.steps[0].topicId).toBe(topicId)
+    sequenceId = data.id
+  })
+
+  it('activates the sequence', async () => {
+    const { status, data } = await post(`/v1/sequences/${sequenceId}/activate`, {})
+    expect(status).toBe(200)
+    expect(data.status).toBe('active')
+  })
+
+  it('creates a contact unsubscribed from the topic', async () => {
+    const contact = await post('/v1/contacts', {
+      email: `seq-topic-${uid()}@example.com`,
+    })
+    contactId = contact.data.id
+    await post(`/v1/contacts/${contactId}/unsubscribe`, { topicId })
+  })
+
+  it('enrolls the topic-unsubscribed contact', async () => {
+    const { status, data } = await post(`/v1/sequences/${sequenceId}/enroll`, {
+      contactId,
+    })
+    expect(status).toBe(201)
+    enrollmentId = data.id
+  })
+
+  it('enrollment exits due to topic unsubscribe', async () => {
+    const enrollment = await poll(
+      async () => {
+        const { data } = await get(`/v1/sequences/${sequenceId}/enrollments`)
+        const e = data.data.find((e: any) => e.id === enrollmentId)
+        return e?.status === 'exited' ? e : null
+      },
+      { timeoutMs: 15_000, label: 'enrollment exited' },
+    )
+    expect(enrollment.status).toBe('exited')
+  })
+
+  it('sequence stats reflect the exit', async () => {
+    const { data } = await get(`/v1/sequences/${sequenceId}`)
+    expect(data.stats.exited).toBeGreaterThanOrEqual(1)
+  })
+})
+
+describe('sequence lifecycle', () => {
+  let sequenceId: string
+
+  it('creates and lists sequences', async () => {
+    const seq = await post('/v1/sequences', {
+      name: `Lifecycle Seq ${uid()}`,
+      steps: [{ type: 'email', subject: 'Hello' }],
+    })
+    expect(seq.status).toBe(201)
+    sequenceId = seq.data.id
+
+    const list = await get('/v1/sequences')
+    expect(list.data.data.some((s: any) => s.id === sequenceId)).toBe(true)
+  })
+
+  it('updates a draft sequence', async () => {
+    const { status, data } = await patch(`/v1/sequences/${sequenceId}`, {
+      name: 'Updated Seq Name',
+    })
+    expect(status).toBe(200)
+    expect(data.name).toBe('Updated Seq Name')
+  })
+
+  it('activates then pauses', async () => {
+    await post(`/v1/sequences/${sequenceId}/activate`, {})
+
+    const paused = await post(`/v1/sequences/${sequenceId}/pause`, {})
+    expect(paused.status).toBe(200)
+    expect(paused.data.status).toBe('paused')
+  })
+
+  it('rejects enrolling in a paused sequence', async () => {
+    const contact = await post('/v1/contacts', {
+      email: `paused-seq-${uid()}@example.com`,
+    })
+    const { status } = await post(`/v1/sequences/${sequenceId}/enroll`, {
+      contactId: contact.data.id,
+    })
+    expect(status).toBe(400)
+  })
+})

@@ -11,6 +11,7 @@ import type { Config } from '../config.js'
 const createCampaignSchema = z.object({
   name: z.string().min(1),
   subject: z.string().optional(),
+  topicId: z.string().optional(),
   templateId: z.string().optional(),
   templateData: z.record(z.unknown()).optional(),
   fromName: z.string().optional(),
@@ -22,6 +23,7 @@ const createCampaignSchema = z.object({
 const updateCampaignSchema = z.object({
   name: z.string().min(1).optional(),
   subject: z.string().optional(),
+  topicId: z.string().optional(),
   templateId: z.string().optional(),
   templateData: z.record(z.unknown()).optional(),
   fromName: z.string().optional(),
@@ -42,6 +44,7 @@ export function createCampaignRoutes(db: DB, config: Config): Router {
         id,
         name: body.name,
         subject: body.subject ?? null,
+        topicId: body.topicId ?? null,
         templateId: body.templateId ?? null,
         templateData: body.templateData ?? null,
         fromName: body.fromName ?? null,
@@ -121,6 +124,7 @@ export function createCampaignRoutes(db: DB, config: Config): Router {
       const updates: Record<string, unknown> = {}
       if (body.name !== undefined) updates.name = body.name
       if (body.subject !== undefined) updates.subject = body.subject
+      if (body.topicId !== undefined) updates.topicId = body.topicId
       if (body.templateId !== undefined) updates.templateId = body.templateId
       if (body.templateData !== undefined) updates.templateData = body.templateData
       if (body.fromName !== undefined) updates.fromName = body.fromName

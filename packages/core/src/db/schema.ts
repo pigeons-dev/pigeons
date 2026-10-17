@@ -122,6 +122,7 @@ export const contacts = sqliteTable('contacts', {
   properties: text('properties', { mode: 'json' }).$type<Record<string, unknown>>(),
   unsubscribed: integer('unsubscribed', { mode: 'boolean' }).notNull().default(false),
   unsubscribedAt: text('unsubscribed_at'),
+  unsubscribedTopics: text('unsubscribed_topics', { mode: 'json' }).$type<string[]>(),
   bounced: integer('bounced', { mode: 'boolean' }).notNull().default(false),
   bouncedAt: text('bounced_at'),
   complained: integer('complained', { mode: 'boolean' }).notNull().default(false),
@@ -230,10 +231,18 @@ export const webhookDeliveries = sqliteTable('webhook_deliveries', {
     .$defaultFn(() => new Date().toISOString()),
 })
 
+export const subscriptionTopics = sqliteTable('subscription_topics', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull().unique(),
+  description: text('description'),
+  ...timestamps(),
+})
+
 export const campaigns = sqliteTable('campaigns', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   subject: text('subject'),
+  topicId: text('topic_id'),
   templateId: text('template_id'),
   templateData: text('template_data', { mode: 'json' }).$type<Record<string, unknown>>(),
   fromName: text('from_name'),
@@ -277,6 +286,7 @@ export const sequenceSteps = sqliteTable('sequence_steps', {
   type: text('type', {
     enum: ['email', 'delay', 'condition'],
   }).notNull(),
+  topicId: text('topic_id'),
   templateId: text('template_id'),
   templateData: text('template_data', { mode: 'json' }).$type<Record<string, unknown>>(),
   subject: text('subject'),

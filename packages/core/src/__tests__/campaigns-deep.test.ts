@@ -24,7 +24,7 @@ const config: Config = {
   workerPollInterval: 1000,
   rateLimits: {
     emails: 10000, domains: 10000, apiKeys: 10000, templates: 10000,
-    contacts: 10000, inboxes: 10000, webhooks: 10000, campaigns: 10000, sequences: 10000,
+    contacts: 10000, inboxes: 10000, webhooks: 10000, campaigns: 10000, sequences: 10000, topics: 10000,
   },
 }
 
