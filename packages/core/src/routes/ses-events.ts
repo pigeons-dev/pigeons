@@ -1,26 +1,52 @@
 import { Router } from 'express'
+import MessageValidator from 'sns-validator'
 import { eq } from 'drizzle-orm'
 import { emails, contacts } from '../db/schema.js'
 import type { DB } from '../db/index.js'
+
+const validator = new MessageValidator()
+
+function validateSnsMessage(body: Record<string, unknown>): Promise<void> {
+  return new Promise((resolve, reject) => {
+    validator.validate(body, (err: Error | null) => {
+      if (err) reject(err)
+      else resolve()
+    })
+  })
+}
+
+const SNS_URL_PATTERN = /^https:\/\/sns\.[a-z0-9-]+\.amazonaws\.com\//
 
 export function createSesEventRoutes(db: DB): Router {
   const router = Router()
 
   router.post('/events', async (req, res, next) => {
     try {
-      const message = req.body
+      const body = req.body
+      const messageType = req.headers['x-amz-sns-message-type'] as string | undefined
 
-      if (message.Type === 'SubscriptionConfirmation') {
-        const { default: fetch } = await import('node-fetch' as any).catch(() => ({ default: globalThis.fetch }))
-        await fetch(message.SubscribeURL)
+      try {
+        await validateSnsMessage(body)
+      } catch {
+        res.status(403).json({ error: 'Invalid SNS signature' })
+        return
+      }
+
+      if (messageType === 'SubscriptionConfirmation') {
+        const subscribeUrl = body.SubscribeURL as string
+        if (!subscribeUrl || !SNS_URL_PATTERN.test(subscribeUrl)) {
+          res.status(403).json({ error: 'Invalid SubscribeURL' })
+          return
+        }
+        await fetch(subscribeUrl)
         return res.json({ confirmed: true })
       }
 
-      if (message.Type !== 'Notification') {
+      if (messageType !== 'Notification') {
         return res.json({ skipped: true })
       }
 
-      const payload = JSON.parse(message.Message)
+      const payload = JSON.parse(body.Message as string)
       const eventType = payload.eventType ?? payload.notificationType
 
       switch (eventType) {

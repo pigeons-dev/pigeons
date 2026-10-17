@@ -4,17 +4,22 @@ import { idempotencyKeys } from '../db/schema.js'
 import type { DB } from '../db/index.js'
 
 export function createIdempotencyMiddleware(db: DB) {
+  setInterval(() => {
+    try {
+      db.delete(idempotencyKeys).where(lt(idempotencyKeys.expiresAt, new Date().toISOString())).run()
+    } catch {}
+  }, 5 * 60 * 1000).unref()
+
   return async (req: Request, res: Response, next: NextFunction) => {
     const key = req.headers['idempotency-key'] as string | undefined
     if (!key) return next()
 
-    // Clean expired keys
-    db.delete(idempotencyKeys).where(lt(idempotencyKeys.expiresAt, new Date().toISOString())).run()
+    const scopedKey = `${(req as any).apiKey.id}:${key}`
 
     const [existing] = await db
       .select()
       .from(idempotencyKeys)
-      .where(eq(idempotencyKeys.key, key))
+      .where(eq(idempotencyKeys.key, scopedKey))
       .limit(1)
 
     if (existing) {
@@ -26,7 +31,7 @@ export function createIdempotencyMiddleware(db: DB) {
     res.json = function (body: any) {
       db.insert(idempotencyKeys)
         .values({
-          key,
+          key: scopedKey,
           response: body,
           statusCode: res.statusCode,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),

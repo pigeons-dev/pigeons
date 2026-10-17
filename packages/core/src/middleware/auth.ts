@@ -7,12 +7,11 @@ import type { DB } from '../db/index.js'
 
 export function createAuthMiddleware(db: DB) {
   return async (req: Request, _res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization
-    if (!authHeader?.startsWith('Bearer ')) {
-      return next(new AuthError())
+    const token = req.headers['x-api-key'] as string | undefined
+    if (!token) {
+      return next(new AuthError('Missing x-api-key header'))
     }
 
-    const token = authHeader.slice(7)
     if (!token.startsWith('pgn_')) {
       return next(new AuthError())
     }
@@ -34,6 +33,27 @@ export function createAuthMiddleware(db: DB) {
       .where(eq(apiKeys.id, key.id))
 
     ;(req as any).apiKey = key
+    next()
+  }
+}
+
+export function requireScopes(...resources: string[]) {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    const key = (req as any).apiKey
+    if (!key) return next(new AuthError())
+
+    const keyScopes = key.scopes as string[] | null
+    if (!keyScopes || keyScopes.length === 0) return next()
+    if (keyScopes.includes('*')) return next()
+
+    const hasAccess = resources.some((resource) =>
+      keyScopes.some((s) => s === resource || s.startsWith(`${resource}.`)),
+    )
+
+    if (!hasAccess) {
+      return next(new AuthError(`Insufficient scope: requires access to '${resources.join("' or '")}'`))
+    }
+
     next()
   }
 }

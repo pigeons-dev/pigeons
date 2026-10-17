@@ -1,4 +1,8 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, beforeAll, vi } from 'vitest'
+
+vi.mock('../utils/url-validation.js', () => ({
+  validateWebhookUrl: vi.fn().mockResolvedValue(undefined),
+}))
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
 import { migrate } from 'drizzle-orm/libsql/migrator'

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
 import { migrate } from 'drizzle-orm/libsql/migrator'
@@ -10,6 +10,16 @@ import { generateId } from '../utils/id.js'
 import type { Config } from '../config.js'
 import type { Server } from 'node:http'
 import type { DB } from '../db/index.js'
+
+vi.mock('sns-validator', () => {
+  return {
+    default: class {
+      validate(_msg: unknown, cb: (err: Error | null) => void) {
+        cb(null)
+      }
+    },
+  }
+})
 
 let server: Server
 let baseUrl: string
@@ -72,7 +82,7 @@ afterAll(() => {
 
 async function get(path: string, headers?: Record<string, string>) {
   const res = await fetch(`${baseUrl}${path}`, {
-    headers: { Authorization: `Bearer ${apiKey}`, ...headers },
+    headers: { 'x-api-key': apiKey, ...headers },
   })
   return { status: res.status, data: (await res.json()) as any }
 }
@@ -81,7 +91,7 @@ async function post(path: string, body: unknown, headers?: Record<string, string
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
       ...headers,
     },
@@ -94,7 +104,7 @@ async function patch(path: string, body: unknown) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'PATCH',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
@@ -105,15 +115,19 @@ async function patch(path: string, body: unknown) {
 async function del(path: string) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: { 'x-api-key': apiKey },
   })
   return { status: res.status, data: (await res.json()) as any }
 }
 
 async function rawPost(path: string, body: unknown) {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (body && typeof body === 'object' && 'Type' in body) {
+    headers['x-amz-sns-message-type'] = (body as any).Type
+  }
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(body),
   })
   return { status: res.status, data: (await res.json()) as any }
@@ -128,23 +142,23 @@ function snsNotification(payload: unknown) {
 // =========================================
 
 describe('auth edge cases', () => {
-  it('rejects Authorization without Bearer prefix', async () => {
+  it('rejects missing x-api-key header', async () => {
     const res = await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: apiKey },
+      headers: {},
     })
     expect(res.status).toBe(401)
   })
 
-  it('rejects Basic auth scheme', async () => {
+  it('rejects empty x-api-key header', async () => {
     const res = await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: `Basic ${Buffer.from('user:pass').toString('base64')}` },
+      headers: { 'x-api-key': '' },
     })
     expect(res.status).toBe(401)
   })
 
-  it('rejects empty Bearer token', async () => {
+  it('rejects non-pgn key prefix', async () => {
     const res = await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: 'Bearer ' },
+      headers: { 'x-api-key': 'not_a_valid_key' },
     })
     expect(res.status).toBe(401)
   })
@@ -162,7 +176,7 @@ describe('auth edge cases', () => {
     })
 
     const res = await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: `Bearer ${full}` },
+      headers: { 'x-api-key': full },
     })
     expect(res.status).toBe(401)
   })
@@ -182,7 +196,7 @@ describe('auth edge cases', () => {
     expect(before[0].lastUsedAt).toBeNull()
 
     await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: `Bearer ${full}` },
+      headers: { 'x-api-key': full },
     })
 
     const after = await db.select().from(schema.apiKeys).where(eq(schema.apiKeys.id, keyId))
@@ -195,7 +209,7 @@ describe('auth edge cases', () => {
 
     // Verify it works
     const check = await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: `Bearer ${tempKey}` },
+      headers: { 'x-api-key': tempKey },
     })
     expect(check.status).toBe(200)
 
@@ -204,7 +218,7 @@ describe('auth edge cases', () => {
 
     // Verify it no longer works
     const recheck = await fetch(`${baseUrl}/v1/emails`, {
-      headers: { Authorization: `Bearer ${tempKey}` },
+      headers: { 'x-api-key': tempKey },
     })
     expect(recheck.status).toBe(401)
   })

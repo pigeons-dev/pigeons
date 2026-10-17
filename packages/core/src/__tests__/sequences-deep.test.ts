@@ -61,7 +61,7 @@ afterAll(() => {
 async function post(path: string, body: unknown) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
   return { status: res.status, data: (await res.json()) as any }
@@ -69,7 +69,7 @@ async function post(path: string, body: unknown) {
 
 async function get(path: string) {
   const res = await fetch(`${baseUrl}${path}`, {
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: { 'x-api-key': apiKey },
   })
   return { status: res.status, data: (await res.json()) as any }
 }
@@ -77,7 +77,7 @@ async function get(path: string) {
 async function patch(path: string, body: unknown) {
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'PATCH',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
   return { status: res.status, data: (await res.json()) as any }
