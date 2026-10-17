@@ -9,6 +9,7 @@ import type { Config } from '../config.js'
 
 const stepSchema = z.object({
   type: z.enum(['email', 'delay', 'condition']),
+  topicId: z.string().optional(),
   templateId: z.string().optional(),
   templateData: z.record(z.unknown()).optional(),
   subject: z.string().optional(),
@@ -56,6 +57,7 @@ export function createSequenceRoutes(db: DB, config: Config): Router {
             sequenceId: id,
             position: i,
             type: step.type,
+            topicId: step.topicId ?? null,
             templateId: step.templateId ?? null,
             templateData: step.templateData ?? null,
             subject: step.subject ?? null,
@@ -158,6 +160,7 @@ export function createSequenceRoutes(db: DB, config: Config): Router {
             sequenceId: existing.id,
             position: i,
             type: step.type,
+            topicId: step.topicId ?? null,
             templateId: step.templateId ?? null,
             templateData: step.templateData ?? null,
             subject: step.subject ?? null,

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { eq, desc, lt, and, inArray } from 'drizzle-orm'
-import { contacts } from '../db/schema.js'
+import { contacts, subscriptionTopics } from '../db/schema.js'
 import { generateId } from '../utils/id.js'
 import { NotFoundError, ConflictError, ValidationError } from '../utils/errors.js'
 import type { DB } from '../db/index.js'
@@ -200,6 +200,7 @@ export function createContactRoutes(db: DB): Router {
     try {
       const param = req.params.idOrEmail
       const isId = param.startsWith('ctc_')
+      const topicId = req.body?.topicId as string | undefined
 
       const [existing] = await db
         .select()
@@ -209,10 +210,22 @@ export function createContactRoutes(db: DB): Router {
 
       if (!existing) throw new NotFoundError('Contact', param)
 
-      await db.update(contacts).set({
-        unsubscribed: true,
-        unsubscribedAt: new Date().toISOString(),
-      }).where(eq(contacts.id, existing.id))
+      if (topicId) {
+        const [topic] = await db.select().from(subscriptionTopics).where(eq(subscriptionTopics.id, topicId)).limit(1)
+        if (!topic) throw new NotFoundError('Topic', topicId)
+
+        const current = (existing.unsubscribedTopics ?? []) as string[]
+        if (!current.includes(topicId)) {
+          await db.update(contacts).set({
+            unsubscribedTopics: [...current, topicId],
+          }).where(eq(contacts.id, existing.id))
+        }
+      } else {
+        await db.update(contacts).set({
+          unsubscribed: true,
+          unsubscribedAt: new Date().toISOString(),
+        }).where(eq(contacts.id, existing.id))
+      }
 
       const [updated] = await db.select().from(contacts).where(eq(contacts.id, existing.id)).limit(1)
       res.json(updated)
@@ -225,6 +238,7 @@ export function createContactRoutes(db: DB): Router {
     try {
       const param = req.params.idOrEmail
       const isId = param.startsWith('ctc_')
+      const topicId = req.body?.topicId as string | undefined
 
       const [existing] = await db
         .select()
@@ -234,10 +248,17 @@ export function createContactRoutes(db: DB): Router {
 
       if (!existing) throw new NotFoundError('Contact', param)
 
-      await db.update(contacts).set({
-        unsubscribed: false,
-        unsubscribedAt: null,
-      }).where(eq(contacts.id, existing.id))
+      if (topicId) {
+        const current = (existing.unsubscribedTopics ?? []) as string[]
+        await db.update(contacts).set({
+          unsubscribedTopics: current.filter((id) => id !== topicId),
+        }).where(eq(contacts.id, existing.id))
+      } else {
+        await db.update(contacts).set({
+          unsubscribed: false,
+          unsubscribedAt: null,
+        }).where(eq(contacts.id, existing.id))
+      }
 
       const [updated] = await db.select().from(contacts).where(eq(contacts.id, existing.id)).limit(1)
       res.json(updated)

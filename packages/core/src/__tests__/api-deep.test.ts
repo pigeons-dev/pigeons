@@ -36,6 +36,7 @@ const config: Config = {
     webhooks: 10000,
     campaigns: 10000,
     sequences: 10000,
+    topics: 10000,
   },
 }
 

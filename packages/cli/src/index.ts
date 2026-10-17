@@ -13,6 +13,7 @@ import { inboxesCommand } from './commands/inboxes.js'
 import { webhooksCommand } from './commands/webhooks.js'
 import { campaignsCommand } from './commands/campaigns.js'
 import { sequencesCommand } from './commands/sequences.js'
+import { topicsCommand } from './commands/topics.js'
 import { statusCommand } from './commands/status.js'
 
 const program = new Command()
@@ -35,6 +36,7 @@ program.addCommand(inboxesCommand)
 program.addCommand(webhooksCommand)
 program.addCommand(campaignsCommand)
 program.addCommand(sequencesCommand)
+program.addCommand(topicsCommand)
 program.addCommand(statusCommand)
 
 program.parse()
