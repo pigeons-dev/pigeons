@@ -15,6 +15,7 @@ import { campaignsCommand } from './commands/campaigns.js'
 import { sequencesCommand } from './commands/sequences.js'
 import { topicsCommand } from './commands/topics.js'
 import { statusCommand } from './commands/status.js'
+import { setupCommand } from './commands/setup.js'
 
 const program = new Command()
 
@@ -38,5 +39,6 @@ program.addCommand(campaignsCommand)
 program.addCommand(sequencesCommand)
 program.addCommand(topicsCommand)
 program.addCommand(statusCommand)
+program.addCommand(setupCommand)
 
 program.parse()
