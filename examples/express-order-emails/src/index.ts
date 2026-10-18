@@ -69,7 +69,7 @@ app.post('/orders/:id/confirm', async (req: Request, res: Response) => {
   `.trim()
 
   // Plain text fallback for email clients that don't render HTML.
-  const itemLines = items.map((i) => `  - ${i.name} x${i.qty} — $${i.price.toFixed(2)}`).join('\n')
+  const itemLines = items.map((i) => `  - ${i.name} x${i.qty}  - $${i.price.toFixed(2)}`).join('\n')
   const text = [
     `Order Confirmed`,
     ``,
@@ -114,7 +114,7 @@ app.post('/orders/:id/confirm', async (req: Request, res: Response) => {
 // ── POST /orders/:id/shipped ────────────────────────────────────────────────
 // Sends a shipping notification with tracking details.
 //
-// No idempotency key here — shipping updates can be re-sent if tracking
+// No idempotency key here  - shipping updates can be re-sent if tracking
 // info changes (e.g. carrier reassignment). Add one if your workflow
 // requires exactly-once delivery.
 
@@ -137,7 +137,7 @@ app.post('/orders/:id/shipped', async (req: Request, res: Response) => {
   const html = `
     <h1>Your Order Has Shipped!</h1>
     <p>Hi ${name},</p>
-    <p>Great news — your order <strong>#${id}</strong> is on its way.</p>
+    <p>Great news  - your order <strong>#${id}</strong> is on its way.</p>
     <p>
       <strong>Tracking Number:</strong> ${trackingNumber}<br/>
       <a href="${trackingUrl}">Track your package</a>
@@ -150,7 +150,7 @@ app.post('/orders/:id/shipped', async (req: Request, res: Response) => {
     ``,
     `Hi ${name},`,
     ``,
-    `Great news — your order #${id} is on its way.`,
+    `Great news  - your order #${id} is on its way.`,
     ``,
     `Tracking Number: ${trackingNumber}`,
     `Track your package: ${trackingUrl}`,
@@ -161,7 +161,7 @@ app.post('/orders/:id/shipped', async (req: Request, res: Response) => {
   try {
     const notification = await pigeons.emails.send({
       to: email,
-      subject: `Order #${id} Shipped — Track Your Package`,
+      subject: `Order #${id} Shipped  - Track Your Package`,
       html,
       text,
       tags: ['shipping-notification'],
@@ -185,7 +185,7 @@ app.post('/orders/:id/shipped', async (req: Request, res: Response) => {
 // Template variables are passed in the `data` field.
 //
 // This route uses an idempotency key because an invoice should only be
-// sent once per order — retries must not produce duplicate receipts.
+// sent once per order  - retries must not produce duplicate receipts.
 
 interface InvoiceBody {
   email: string
@@ -236,7 +236,7 @@ app.post('/orders/:id/invoice', async (req: Request, res: Response) => {
 // Checks the delivery status of the order confirmation email.
 //
 // In production, prefer webhooks over polling. Pigeons fires webhook
-// events for delivery, bounce, and complaint — see the
+// events for delivery, bounce, and complaint  - see the
 // webhook-event-handler example. This endpoint is useful for on-demand
 // status checks in admin dashboards.
 
@@ -253,13 +253,13 @@ app.get('/orders/:id/status', async (req: Request, res: Response) => {
     // Fetch the email by the ID returned from the send call.
     // The status field reflects the current delivery state:
     //
-    //   queued     — accepted by Pigeons, waiting for the background worker
-    //   sending    — worker picked it up, handing to SES
-    //   sent       — SES accepted the message
-    //   delivered  — SES confirmed delivery to the recipient's mail server
-    //   bounced    — recipient's server rejected the message
-    //   complained — recipient marked it as spam
-    //   failed     — Pigeons could not send (bad address, config error, etc.)
+    //   queued      - accepted by Pigeons, waiting for the background worker
+    //   sending     - worker picked it up, handing to SES
+    //   sent        - SES accepted the message
+    //   delivered   - SES confirmed delivery to the recipient's mail server
+    //   bounced     - recipient's server rejected the message
+    //   complained  - recipient marked it as spam
+    //   failed      - Pigeons could not send (bad address, config error, etc.)
     const email = await pigeons.emails.get(emailId)
 
     res.json({
@@ -284,9 +284,9 @@ function handlePigeonsError(res: Response, err: unknown): void {
   if (err instanceof PigeonsError) {
     // PigeonsError includes the upstream status code, so we can forward it.
     // Common cases:
-    //   401 — invalid or missing API key
-    //   404 — email or template not found
-    //   429 — rate limit exceeded (Pigeons enforces per-route limits)
+    //   401  - invalid or missing API key
+    //   404  - email or template not found
+    //   429  - rate limit exceeded (Pigeons enforces per-route limits)
     res.status(err.statusCode).json({
       error: err.message,
       code: err.code,

@@ -1,5 +1,5 @@
 /**
- * Pigeons Quick Start — TypeScript
+ * Pigeons Quick Start  - TypeScript
  *
  * Demonstrates the three most common operations:
  *   1. Send a transactional email
@@ -18,7 +18,7 @@ const pigeons = new Pigeons()
 
 // ── 1. Send an email ────────────────────────────────────────────────────────
 // The SDK returns the full email object immediately. The email is queued
-// for delivery — status will be "queued" until the background worker
+// for delivery  - status will be "queued" until the background worker
 // picks it up and hands it to SES.
 
 console.log('Sending email...\n')
@@ -37,7 +37,7 @@ console.log(`  To:     ${email.to.join(', ')}\n`)
 
 // ── 2. Check delivery status ────────────────────────────────────────────────
 // Poll the email by ID to see its current status. In production you'd
-// use webhooks instead of polling — see the webhook-event-handler example.
+// use webhooks instead of polling  - see the webhook-event-handler example.
 
 console.log('Checking delivery status...\n')
 

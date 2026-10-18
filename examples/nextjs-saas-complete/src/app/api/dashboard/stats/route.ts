@@ -7,16 +7,16 @@ import { pigeons } from '@/lib/pigeons'
 // Returns aggregated email stats for your admin dashboard.
 // Combines data from two sources:
 //
-//   1. Pigeons global stats API — delivery rates, bounce rates, complaint
+//   1. Pigeons global stats API  - delivery rates, bounce rates, complaint
 //      rates, and open rates across 24h / 7d / 30d windows. Also includes
 //      top sending domains with per-domain delivery rates.
 //
-//   2. Campaign stats — completion rates and per-campaign delivery metrics.
+//   2. Campaign stats  - completion rates and per-campaign delivery metrics.
 //
 // This gives you a complete picture of your email health:
 //   - Are emails being delivered? (delivery rate)
-//   - Are you hitting spam traps? (complaint rate — keep under 0.1%)
-//   - Are addresses valid? (bounce rate — keep under 5%)
+//   - Are you hitting spam traps? (complaint rate  - keep under 0.1%)
+//   - Are addresses valid? (bounce rate  - keep under 5%)
 //   - Are recipients engaged? (open rate)
 //   - Which campaigns performed best?
 //
@@ -25,7 +25,7 @@ import { pigeons } from '@/lib/pigeons'
 export async function GET() {
   try {
     // Fetch global stats and recent campaigns in parallel.
-    // This is more efficient than sequential requests — the Pigeons
+    // This is more efficient than sequential requests  - the Pigeons
     // API handles them independently.
     const [globalStats, campaigns] = await Promise.all([
       pigeons.stats.get(),
@@ -73,7 +73,7 @@ export async function GET() {
         },
       },
 
-      // Per-domain breakdown — useful for multi-domain setups
+      // Per-domain breakdown  - useful for multi-domain setups
       // to spot domain-specific deliverability issues.
       topDomains: globalStats.topDomains,
 

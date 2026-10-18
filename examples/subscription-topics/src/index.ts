@@ -3,7 +3,7 @@
  *
  * Demonstrates the full subscription topic lifecycle for managing email
  * preferences. Subscription topics let your users control which categories
- * of email they receive — product updates, marketing, digests, etc. —
+ * of email they receive  - product updates, marketing, digests, etc.  -
  * without unsubscribing from everything.
  *
  * The subscription model works like this:
@@ -33,7 +33,7 @@ import { Pigeons } from '@pigeons/pigeons-ts'
 
 // ── Initialize ──────────────────────────────────────────────────────────────
 // Reads PIGEONS_URL and PIGEONS_API_KEY from environment variables.
-// No default URL — you must configure your own self-hosted instance.
+// No default URL  - you must configure your own self-hosted instance.
 
 const pigeons = new Pigeons()
 
@@ -119,7 +119,7 @@ console.log(`\n  Total topics: ${Object.keys(topics).length}\n`)
 
 // ── 2. Create a contact ─────────────────────────────────────────────────────
 // Contacts are subscribed to ALL topics by default. This is the opt-out model
-// required by most email regulations — you only need to track when someone
+// required by most email regulations  - you only need to track when someone
 // opts OUT, not when they opt in.
 //
 // The contact's `unsubscribedTopics` field starts as null/empty, meaning
@@ -141,7 +141,7 @@ try {
   })
   console.log(`  + Created: ${contact.email} (${contact.id})`)
 } catch (err: any) {
-  // Contact already exists — fetch them by email.
+  // Contact already exists  - fetch them by email.
   if (err.statusCode === 409 || err.code === 'already_exists') {
     contact = await pigeons.contacts.get('alice@example.com')
     console.log(`  ~ Exists:  ${contact.email} (${contact.id})`)
@@ -159,7 +159,7 @@ console.log(`  (New contacts are subscribed to all topics by default)\n`)
 // ID is NOT in `unsubscribedTopics`, the contact is subscribed to it.
 //
 // This opt-out model means new topics automatically include all existing
-// contacts — no migration needed when you add a new email category.
+// contacts  - no migration needed when you add a new email category.
 
 console.log('=== Step 3: Listing active subscriptions ===\n')
 
@@ -219,7 +219,7 @@ console.log()
 // ── 5. Send a topic-scoped campaign ─────────────────────────────────────────
 // When you create a campaign with a `topicId`, Pigeons automatically filters
 // out contacts who have unsubscribed from that topic. This happens at the
-// worker level — the campaign handler checks each contact's
+// worker level  - the campaign handler checks each contact's
 // `unsubscribedTopics` before sending.
 //
 // This means you don't need to filter your audience manually. Just assign
@@ -250,7 +250,7 @@ console.log()
 //   3. Skip contacts who have unsubscribed from this topic
 //   4. Send to everyone else
 //
-// Now create a marketing campaign — Alice has unsubscribed from marketing,
+// Now create a marketing campaign  - Alice has unsubscribed from marketing,
 // so she would be automatically excluded.
 
 const marketingCampaign = await pigeons.campaigns.create({
@@ -280,7 +280,7 @@ async function shouldSendToContact(contactId: string, topicId: string): Promise<
 
   // If the contact has globally unsubscribed, don't send anything.
   if (c.unsubscribed) {
-    console.log(`    Contact ${c.email} is globally unsubscribed — skipping`)
+    console.log(`    Contact ${c.email} is globally unsubscribed  - skipping`)
     return false
   }
 
@@ -288,11 +288,11 @@ async function shouldSendToContact(contactId: string, topicId: string): Promise<
   // an array of topic IDs the contact has opted out of.
   const unsubs: string[] = (c as any).unsubscribedTopics ?? []
   if (unsubs.includes(topicId)) {
-    console.log(`    Contact ${c.email} is unsubscribed from topic ${topicId} — skipping`)
+    console.log(`    Contact ${c.email} is unsubscribed from topic ${topicId}  - skipping`)
     return false
   }
 
-  console.log(`    Contact ${c.email} is subscribed to topic ${topicId} — will send`)
+  console.log(`    Contact ${c.email} is subscribed to topic ${topicId}  - will send`)
   return true
 }
 
@@ -344,7 +344,7 @@ console.log()
 
 console.log('=== Step 7: Resubscribe flow ===\n')
 
-// Alice changes her mind — she wants the weekly digest back.
+// Alice changes her mind  - she wants the weekly digest back.
 console.log(`  Before: Alice is unsubscribed from:`)
 const beforeResub = await pigeons.contacts.get(contact.id)
 const beforeUnsubs: string[] = (beforeResub as any).unsubscribedTopics ?? []
@@ -359,7 +359,7 @@ const afterUnsubs: string[] = afterResub.unsubscribedTopics ?? []
 
 console.log(`\n  After: Alice is unsubscribed from:`)
 if (afterUnsubs.length === 0) {
-  console.log('    (none — subscribed to all topics)')
+  console.log('    (none  - subscribed to all topics)')
 } else {
   for (const topicId of afterUnsubs) {
     const topicName = Object.entries(topics).find(([_, t]) => t.id === topicId)?.[0] ?? topicId
@@ -391,7 +391,7 @@ for (const t of allTopics) {
   console.log(`    ${t.id}  ${t.name.padEnd(20)}  ${t.description ?? '(no description)'}`)
 }
 if (has_more) {
-  console.log('  (more topics available — use cursor pagination)')
+  console.log('  (more topics available  - use cursor pagination)')
 }
 
 // You can also update topic names and descriptions. This is useful when
@@ -400,7 +400,7 @@ if (has_more) {
 
 const securityTopic = topics['security-alerts']
 const updated = await pigeons.topics.update(securityTopic.id, {
-  description: 'Critical security notices — password resets, new logins, and 2FA changes',
+  description: 'Critical security notices  - password resets, new logins, and 2FA changes',
 })
 console.log(`\n  Updated topic: ${updated.name}`)
 console.log(`  New description: ${updated.description}`)

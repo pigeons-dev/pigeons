@@ -1,4 +1,4 @@
-# Quick Start — Python
+# Quick Start  - Python
 
 Send your first email with the Pigeons Python SDK in under 5 minutes.
 
@@ -61,15 +61,15 @@ Done!
 
 The example covers three SDK methods:
 
-1. **`pigeons.emails.send()`** — Queues an email for delivery. Returns immediately with the email dict (status: `queued`). The background worker picks it up and sends it through SES.
+1. **`pigeons.emails.send()`**  - Queues an email for delivery. Returns immediately with the email dict (status: `queued`). The background worker picks it up and sends it through SES.
 
-2. **`pigeons.emails.get(id)`** — Fetches the current state of an email by ID. Status progresses through: `queued` → `sending` → `sent` → `delivered`. If something goes wrong: `bounced`, `complained`, or `failed`.
+2. **`pigeons.emails.get(id)`**  - Fetches the current state of an email by ID. Status progresses through: `queued` → `sending` → `sent` → `delivered`. If something goes wrong: `bounced`, `complained`, or `failed`.
 
-3. **`pigeons.emails.list()`** — Returns a paginated list of emails. Supports filtering by `status`, `limit`, and `cursor` for pagination.
+3. **`pigeons.emails.list()`**  - Returns a paginated list of emails. Supports filtering by `status`, `limit`, and `cursor` for pagination.
 
 ## Next steps
 
-- [with-typescript](../with-typescript/) — Same flow in TypeScript
-- [with-curl](../with-curl/) — Raw HTTP calls without an SDK
-- [email-templates](../email-templates/) — Use React Email templates instead of inline HTML
-- [fastapi-notifications](../fastapi-notifications/) — Build a notification system with FastAPI
+- [with-typescript](../with-typescript/)  - Same flow in TypeScript
+- [with-curl](../with-curl/)  - Raw HTTP calls without an SDK
+- [email-templates](../email-templates/)  - Use React Email templates instead of inline HTML
+- [fastapi-notifications](../fastapi-notifications/)  - Build a notification system with FastAPI

@@ -50,9 +50,9 @@ _Uses tool: `create_contact`_
 _Responses:_
 
 ```
-ctc_e1m2m3 — emma@example.com
-ctc_f4r5a6 — frank@example.com
-ctc_g7k8i9 — grace@example.com
+ctc_e1m2m3  - emma@example.com
+ctc_f4r5a6  - frank@example.com
+ctc_g7k8i9  - grace@example.com
 ```
 
 All three contacts created with the `relay-launch` tag. Now I'll create the campaign targeting that tag.

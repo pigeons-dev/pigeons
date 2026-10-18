@@ -148,28 +148,28 @@ The MCP server also exposes three read-only resources that Claude can access for
 
 Each example reads like a natural conversation between a human and Claude, showing the exact tool calls the agent makes.
 
-### [01 — Send a welcome email](./examples/01-send-email.md)
+### [01  - Send a welcome email](./examples/01-send-email.md)
 
 Send a transactional email to a new user and check delivery status. Demonstrates `send_email` and `get_email`.
 
-### [02 — Manage an inbox](./examples/02-manage-inbox.md)
+### [02  - Manage an inbox](./examples/02-manage-inbox.md)
 
 Create an agent inbox, list incoming messages, and view a conversation thread. Demonstrates `create_inbox`, `get_inbox_messages`, and `get_thread`.
 
-### [03 — Reply to a thread](./examples/03-reply-to-thread.md)
+### [03  - Reply to a thread](./examples/03-reply-to-thread.md)
 
 Read an inbound support question, compose a helpful reply, and close the thread. Demonstrates `get_inbox_messages`, `reply_to_message`, and `update_thread_status`.
 
-### [04 — Campaign workflow](./examples/04-campaign-workflow.md)
+### [04  - Campaign workflow](./examples/04-campaign-workflow.md)
 
 Create contacts, build a targeted campaign, and schedule it. Demonstrates `create_contact`, `create_campaign`, `send_campaign`, and `list_campaigns`.
 
-### [05 — Check deliverability](./examples/05-check-deliverability.md)
+### [05  - Check deliverability](./examples/05-check-deliverability.md)
 
 Check domain authentication, delivery rates, and bounce/complaint health. Demonstrates the `pigeons://domains` resource and `list_emails`.
 
 ## Next steps
 
-- [ai-support-agent](../ai-support-agent/) — Build an autonomous support agent that triages and responds to email
-- [ai-outreach-agent](../ai-outreach-agent/) — Build an outreach agent that personalizes campaigns per recipient
-- [langchain-email-tools](../langchain-email-tools/) — Use Pigeons as a LangChain tool for multi-agent workflows
+- [ai-support-agent](../ai-support-agent/)  - Build an autonomous support agent that triages and responds to email
+- [ai-outreach-agent](../ai-outreach-agent/)  - Build an outreach agent that personalizes campaigns per recipient
+- [langchain-email-tools](../langchain-email-tools/)  - Use Pigeons as a LangChain tool for multi-agent workflows

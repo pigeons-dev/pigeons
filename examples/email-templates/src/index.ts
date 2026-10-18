@@ -15,7 +15,7 @@
  *   - Team invite (workspace collaboration invite)
  *
  * Each template is a React Email component stored as a Pigeons template.
- * The server renders them server-side — no React runtime needed in your app.
+ * The server renders them server-side  - no React runtime needed in your app.
  *
  * Run: npx tsx src/index.ts
  */
@@ -36,7 +36,7 @@ const templates = [stripeWelcome, welcome, passwordReset, receipt, notification,
 
 // ── 1. Create templates ─────────────────────────────────────────────────────
 // Upload each template to the Pigeons server. The template body is a React
-// Email component — Pigeons stores it and renders it server-side when you
+// Email component  - Pigeons stores it and renders it server-side when you
 // send an email referencing the template slug.
 
 console.log('Creating templates...\n')
@@ -52,7 +52,7 @@ for (const tpl of templates) {
     })
     console.log(`  + ${created.slug} (${created.id})`)
   } catch (err: any) {
-    // Template already exists — that's fine for re-runs
+    // Template already exists  - that's fine for re-runs
     if (err.statusCode === 409 || err.code === 'already_exists') {
       console.log(`  ~ ${tpl.slug} (already exists)`)
     } else {

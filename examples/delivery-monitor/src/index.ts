@@ -63,7 +63,7 @@ function rpad(str: string, width: number): string {
  *                    AWS SES suspends accounts above ~5% bounce rate.
  *
  * - Complaint rate:  The percentage of recipients who clicked "Report Spam."
- *                    This is the most dangerous metric — ISPs weigh complaints
+ *                    This is the most dangerous metric  - ISPs weigh complaints
  *                    heavily. A rate above 0.1% triggers warnings from Gmail,
  *                    Yahoo, and SES. Above 0.3% risks account suspension.
  */
@@ -162,15 +162,15 @@ interface Alert {
  * major ISP postmaster guidelines (Gmail, Yahoo, Microsoft):
  *
  *   Bounce rate:
- *     > 5%  = CRITICAL — SES will suspend sending
- *     > 2%  = WARNING  — approaching danger zone, clean your list
+ *     > 5%  = CRITICAL  - SES will suspend sending
+ *     > 2%  = WARNING   - approaching danger zone, clean your list
  *
  *   Complaint rate:
- *     > 0.3% = CRITICAL — SES suspension imminent
- *     > 0.1% = WARNING  — Gmail/Yahoo flag this; review content and list
+ *     > 0.3% = CRITICAL  - SES suspension imminent
+ *     > 0.1% = WARNING   - Gmail/Yahoo flag this; review content and list
  *
  *   Delivery rate:
- *     < 90% = WARNING  — significant portion of emails not reaching inboxes
+ *     < 90% = WARNING   - significant portion of emails not reaching inboxes
  *
  *   Domain verification:
  *     Any unverified authentication record = WARNING
@@ -182,12 +182,12 @@ function generateAlerts(stats: PeriodStats, domains: Domain[]): Alert[] {
   if (stats.bounceRate > 5) {
     alerts.push({
       level: 'critical',
-      message: `Bounce rate ${pct(stats.bounceRate)} exceeds 5% — SES account suspension risk`,
+      message: `Bounce rate ${pct(stats.bounceRate)} exceeds 5%  - SES account suspension risk`,
     })
   } else if (stats.bounceRate > 2) {
     alerts.push({
       level: 'warning',
-      message: `Bounce rate ${pct(stats.bounceRate)} above 2% — clean your recipient list`,
+      message: `Bounce rate ${pct(stats.bounceRate)} above 2%  - clean your recipient list`,
     })
   }
 
@@ -197,12 +197,12 @@ function generateAlerts(stats: PeriodStats, domains: Domain[]): Alert[] {
   if (stats.complaintRate > 0.3) {
     alerts.push({
       level: 'critical',
-      message: `Complaint rate ${pct(stats.complaintRate)} exceeds 0.3% — immediate action required`,
+      message: `Complaint rate ${pct(stats.complaintRate)} exceeds 0.3%  - immediate action required`,
     })
   } else if (stats.complaintRate > 0.1) {
     alerts.push({
       level: 'warning',
-      message: `Complaint rate ${pct(stats.complaintRate)} above 0.1% — review recent sends`,
+      message: `Complaint rate ${pct(stats.complaintRate)} above 0.1%  - review recent sends`,
     })
   }
 
@@ -210,7 +210,7 @@ function generateAlerts(stats: PeriodStats, domains: Domain[]): Alert[] {
   if (stats.deliveryRate < 90) {
     alerts.push({
       level: 'warning',
-      message: `Delivery rate ${pct(stats.deliveryRate)} below 90% — check DNS records and sender reputation`,
+      message: `Delivery rate ${pct(stats.deliveryRate)} below 90%  - check DNS records and sender reputation`,
     })
   }
 
@@ -228,14 +228,14 @@ function generateAlerts(stats: PeriodStats, domains: Domain[]): Alert[] {
     if (!domain.spfVerified) {
       alerts.push({
         level: 'warning',
-        message: `Domain ${domain.domain} missing SPF record — recipients may reject your emails`,
+        message: `Domain ${domain.domain} missing SPF record  - recipients may reject your emails`,
       })
     }
 
     if (!domain.dmarcVerified) {
       alerts.push({
         level: 'info',
-        message: `Domain ${domain.domain} missing DMARC record — add one to improve deliverability`,
+        message: `Domain ${domain.domain} missing DMARC record  - add one to improve deliverability`,
       })
     }
   }
@@ -325,7 +325,7 @@ function printHealthScore(health: HealthScore): void {
  *
  * Bounce types explained:
  *   - Hard bounce:  Permanent failure. The address doesn't exist or the
- *                   domain has no mail server. Remove these immediately —
+ *                   domain has no mail server. Remove these immediately  -
  *                   continuing to send to hard bounces damages reputation.
  *   - Soft bounce:  Temporary failure. Mailbox full, server down, message
  *                   too large. SES retries soft bounces automatically.
@@ -389,15 +389,15 @@ function printAlerts(alerts: Alert[]): void {
     let prefix: string
     switch (alert.level) {
       case 'critical':
-        // Red circle — immediate action needed
+        // Red circle  - immediate action needed
         prefix = '✖'
         break
       case 'warning':
-        // Warning triangle — investigate soon
+        // Warning triangle  - investigate soon
         prefix = '⚠'
         break
       case 'info':
-        // Info — no action needed
+        // Info  - no action needed
         prefix = 'ℹ'
         break
     }

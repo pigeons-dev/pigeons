@@ -15,7 +15,7 @@ async function main() {
   if (apiKeyInfo.created) {
     console.log('')
     console.log('='.repeat(60))
-    console.log("  Your API key (save this — it won't be shown again):")
+    console.log("  Your API key (save this  - it won't be shown again):")
     console.log(`  ${apiKeyInfo.key}`)
     console.log('='.repeat(60))
     console.log('')

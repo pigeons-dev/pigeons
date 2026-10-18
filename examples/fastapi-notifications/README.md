@@ -40,7 +40,7 @@ The server starts at `http://localhost:8000`. FastAPI's interactive docs are ava
 
 ## Try it out
 
-### Signup — create a contact and send a welcome email
+### Signup  - create a contact and send a welcome email
 
 ```bash
 curl -X POST http://localhost:8000/signup \
@@ -59,7 +59,7 @@ curl -X POST http://localhost:8000/signup \
 }
 ```
 
-### Activity notification — single send
+### Activity notification  - single send
 
 ```bash
 curl -X POST http://localhost:8000/notify \
@@ -82,7 +82,7 @@ curl -X POST http://localhost:8000/notify \
 }
 ```
 
-### Weekly digest — batch send
+### Weekly digest  - batch send
 
 ```bash
 curl -X POST http://localhost:8000/digest \
@@ -104,7 +104,7 @@ curl -X POST http://localhost:8000/digest \
 }
 ```
 
-### Scheduled email — future delivery
+### Scheduled email  - future delivery
 
 ```bash
 curl -X POST http://localhost:8000/schedule \
@@ -131,7 +131,7 @@ curl -X POST http://localhost:8000/schedule \
 
 ### Pigeons client
 
-The `Pigeons` client is initialized once at module level. It reads `PIGEONS_URL` and `PIGEONS_API_KEY` from environment variables automatically — no config files needed.
+The `Pigeons` client is initialized once at module level. It reads `PIGEONS_URL` and `PIGEONS_API_KEY` from environment variables automatically  - no config files needed.
 
 ```python
 from pigeons import Pigeons
@@ -141,7 +141,7 @@ pigeons = Pigeons()
 
 ### Contacts
 
-`pigeons.contacts.create()` stores a recipient in your Pigeons instance. Contacts are the foundation for audience management — they track subscription status, bounce history, and custom tags. The `/signup` endpoint creates a contact before sending the welcome email so the recipient is available for future campaigns and sequences.
+`pigeons.contacts.create()` stores a recipient in your Pigeons instance. Contacts are the foundation for audience management  - they track subscription status, bounce history, and custom tags. The `/signup` endpoint creates a contact before sending the welcome email so the recipient is available for future campaigns and sequences.
 
 ### Single send
 
@@ -149,7 +149,7 @@ pigeons = Pigeons()
 
 ### Batch send
 
-`pigeons.emails.batch()` queues multiple emails in a single API call. This is more efficient than calling `send()` in a loop — fewer round trips, no rate-limit concerns, and atomic queueing (all succeed or all fail). The `/digest` endpoint uses this to send a weekly digest to a list of recipients.
+`pigeons.emails.batch()` queues multiple emails in a single API call. This is more efficient than calling `send()` in a loop  - fewer round trips, no rate-limit concerns, and atomic queueing (all succeed or all fail). The `/digest` endpoint uses this to send a weekly digest to a list of recipients.
 
 ### Scheduled send
 
@@ -164,13 +164,13 @@ The Pigeons SDK raises typed exceptions that map to HTTP status codes:
 | `ValidationError` | 400 | Missing/invalid fields in the request |
 | `AuthError` | 401 | Bad or missing API key |
 | `NotFoundError` | 404 | Resource doesn't exist (e.g., unverified domain) |
-| `RateLimitError` | 429 | Too many requests — back off and retry |
+| `RateLimitError` | 429 | Too many requests  - back off and retry |
 | `PigeonsError` | varies | Base class for all Pigeons errors |
 
 Each endpoint catches these and converts them to appropriate FastAPI `HTTPException` responses.
 
 ## Next steps
 
-- [ai-support-agent](../ai-support-agent/) — LLM reads inbound emails and sends autonomous replies
-- [helpdesk-inbox](../helpdesk-inbox/) — Multi-inbox routing, auto-label, thread management
-- [delivery-monitor](../delivery-monitor/) — Poll stats API, track warmup phase, flag high bounce rates
+- [ai-support-agent](../ai-support-agent/)  - LLM reads inbound emails and sends autonomous replies
+- [helpdesk-inbox](../helpdesk-inbox/)  - Multi-inbox routing, auto-label, thread management
+- [delivery-monitor](../delivery-monitor/)  - Poll stats API, track warmup phase, flag high bounce rates

@@ -1,12 +1,12 @@
 """
-FastAPI Notifications — Pigeons Example
+FastAPI Notifications  - Pigeons Example
 
 A notification service built with FastAPI and the Pigeons Python SDK.
 Demonstrates four patterns:
-  1. Signup flow — create a contact and send a welcome email
-  2. Activity notification — single transactional send
-  3. Weekly digest — batch send to multiple recipients
-  4. Scheduled email — queue an email for future delivery
+  1. Signup flow  - create a contact and send a welcome email
+  2. Activity notification  - single transactional send
+  3. Weekly digest  - batch send to multiple recipients
+  4. Scheduled email  - queue an email for future delivery
 
 Run: uvicorn main:app --reload
 """
@@ -21,7 +21,7 @@ from pydantic import BaseModel, EmailStr
 from pigeons import Pigeons, PigeonsError, ValidationError, NotFoundError
 
 # ---------------------------------------------------------------------------
-# Pigeons client — initialized once at module level.
+# Pigeons client  - initialized once at module level.
 # Reads PIGEONS_URL and PIGEONS_API_KEY from environment variables.
 # You can also pass them explicitly:
 #   pigeons = Pigeons(base_url="http://localhost:3891", api_key="pgn_...")
@@ -70,7 +70,7 @@ class NotifyResponse(BaseModel):
 
 
 class DigestRequest(BaseModel):
-    """Weekly digest payload — sends to multiple recipients at once."""
+    """Weekly digest payload  - sends to multiple recipients at once."""
     emails: list[EmailStr]
 
 
@@ -99,7 +99,7 @@ class ScheduleResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# POST /signup — Create a contact and send a welcome email
+# POST /signup  - Create a contact and send a welcome email
 # ---------------------------------------------------------------------------
 
 
@@ -109,9 +109,9 @@ def signup(body: SignupRequest) -> SignupResponse:
     Register a new user.
 
     This endpoint demonstrates two Pigeons operations in sequence:
-      1. Create a contact — stores the user in your Pigeons instance so you
+      1. Create a contact  - stores the user in your Pigeons instance so you
          can reference them later in campaigns, sequences, and analytics.
-      2. Send a welcome email — a single transactional send using inline HTML.
+      2. Send a welcome email  - a single transactional send using inline HTML.
 
     The contact is tagged "signup" so you can segment signups later.
     """
@@ -145,7 +145,7 @@ def signup(body: SignupRequest) -> SignupResponse:
                 "Thanks for signing up. Your account is ready.\n"
                 "If you have any questions, just reply to this email."
             ),
-            # Tags on the email are separate from contact tags — they help
+            # Tags on the email are separate from contact tags  - they help
             # you filter and search emails in the Pigeons dashboard and API.
             "tags": ["welcome"],
         })
@@ -164,7 +164,7 @@ def signup(body: SignupRequest) -> SignupResponse:
 
 
 # ---------------------------------------------------------------------------
-# POST /notify — Send an activity notification (single send)
+# POST /notify  - Send an activity notification (single send)
 # ---------------------------------------------------------------------------
 
 
@@ -173,7 +173,7 @@ def notify(body: NotifyRequest) -> NotifyResponse:
     """
     Send an activity notification email.
 
-    This endpoint demonstrates a single transactional send — the most common
+    This endpoint demonstrates a single transactional send  - the most common
     Pigeons operation. Each call to `pigeons.emails.send()` queues one email.
 
     Use this pattern for real-time notifications like "Alice commented on
@@ -209,7 +209,7 @@ def notify(body: NotifyRequest) -> NotifyResponse:
 
 
 # ---------------------------------------------------------------------------
-# POST /digest — Send a weekly digest to multiple recipients (batch send)
+# POST /digest  - Send a weekly digest to multiple recipients (batch send)
 # ---------------------------------------------------------------------------
 
 
@@ -218,7 +218,7 @@ def digest(body: DigestRequest) -> DigestResponse:
     """
     Send a weekly digest email to multiple recipients in one API call.
 
-    This endpoint demonstrates `pigeons.emails.batch()` — the batch send API.
+    This endpoint demonstrates `pigeons.emails.batch()`  - the batch send API.
     Instead of calling `send()` in a loop, you pass a list of email payloads
     and Pigeons queues them all atomically. This is faster, avoids rate-limit
     issues, and guarantees that either all emails are queued or none are.
@@ -273,7 +273,7 @@ def digest(body: DigestRequest) -> DigestResponse:
 
 
 # ---------------------------------------------------------------------------
-# POST /schedule — Schedule an email for future delivery
+# POST /schedule  - Schedule an email for future delivery
 # ---------------------------------------------------------------------------
 
 

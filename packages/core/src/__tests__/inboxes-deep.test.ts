@@ -452,7 +452,7 @@ describe('thread update validation', () => {
       emailAddress: 'thread-update@mail.example.com',
     })
 
-    // We need a thread to test — create one directly... but through the API
+    // We need a thread to test  - create one directly... but through the API
     // we can't create threads directly, they're created via message routing.
     // We'll test the validation rejects invalid status at the route level.
     // If a thread existed, updating with invalid status should 400.

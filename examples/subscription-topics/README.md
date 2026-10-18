@@ -4,10 +4,10 @@ Manage email preferences with fine-grained subscription topics. Let your users c
 
 ## What you'll learn
 
-- **Topics CRUD** — create, list, update, and delete subscription topics
-- **Contact subscriptions** — subscribe and unsubscribe contacts from specific topics
-- **Topic-scoped sending** — campaigns that automatically skip unsubscribed contacts
-- **Preference management** — check subscription status before sending, build preference center patterns
+- **Topics CRUD**  - create, list, update, and delete subscription topics
+- **Contact subscriptions**  - subscribe and unsubscribe contacts from specific topics
+- **Topic-scoped sending**  - campaigns that automatically skip unsubscribed contacts
+- **Preference management**  - check subscription status before sending, build preference center patterns
 
 ## Prerequisites
 
@@ -93,9 +93,9 @@ npx tsx src/index.ts
 === Step 6: Checking subscription status before sending ===
 
   Checking product-updates:
-    Contact alice@example.com is subscribed to topic top_abc123 — will send
+    Contact alice@example.com is subscribed to topic top_abc123  - will send
   Checking marketing:
-    Contact alice@example.com is unsubscribed from topic top_ghi789 — skipping
+    Contact alice@example.com is unsubscribed from topic top_ghi789  - skipping
 
   Sending product update to Alice...
   Sent! msg_xyz789 (status: queued)
@@ -129,7 +129,7 @@ npx tsx src/index.ts
     top_jkl012  security-alerts        Password changes, new device logins, and security notices
 
   Updated topic: security-alerts
-  New description: Critical security notices — password resets, new logins, and 2FA changes
+  New description: Critical security notices  - password resets, new logins, and 2FA changes
 
 Done!
 ```
@@ -188,7 +188,7 @@ const contact = await pigeons.contacts.get(contactId)
 const unsubs: string[] = contact.unsubscribedTopics ?? []
 
 if (contact.unsubscribed || unsubs.includes(topicId)) {
-  // Don't send — contact has opted out
+  // Don't send  - contact has opted out
 }
 ```
 
@@ -198,8 +198,8 @@ if (contact.unsubscribed || unsubs.includes(topicId)) {
 
 Build a settings page where users toggle topics on and off:
 
-1. `GET /v1/topics` — fetch all topics to display as toggles
-2. `GET /v1/contacts/:email` — fetch the contact's `unsubscribedTopics`
+1. `GET /v1/topics`  - fetch all topics to display as toggles
+2. `GET /v1/contacts/:email`  - fetch the contact's `unsubscribedTopics`
 3. When a user toggles off: `POST /v1/contacts/:id/unsubscribe` with `{ topicId }`
 4. When a user toggles on: `POST /v1/contacts/:id/resubscribe` with `{ topicId }`
 
@@ -231,7 +231,7 @@ Your unsubscribe endpoint then calls the Pigeons API to record the opt-out.
 
 ## Next steps
 
-- [email-templates](../email-templates/) — Create templates for your topic-scoped campaigns
-- [express-order-emails](../express-order-emails/) — Transactional email patterns with Express
-- [inbound-webhook-handler](../inbound-webhook-handler/) — Handle delivery events and bounces
-- [ai-outreach-agent](../ai-outreach-agent/) — Build AI agents that respect subscription preferences
+- [email-templates](../email-templates/)  - Create templates for your topic-scoped campaigns
+- [express-order-emails](../express-order-emails/)  - Transactional email patterns with Express
+- [inbound-webhook-handler](../inbound-webhook-handler/)  - Handle delivery events and bounces
+- [ai-outreach-agent](../ai-outreach-agent/)  - Build AI agents that respect subscription preferences

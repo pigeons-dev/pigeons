@@ -6,7 +6,7 @@ import { pigeons } from '@/lib/pigeons'
 //
 // Lists campaigns with their send stats. Each campaign object includes
 // a stats block with total, sent, delivered, opened, bounced, complained,
-// and failed counts — everything you need for a campaigns dashboard.
+// and failed counts  - everything you need for a campaigns dashboard.
 //
 // Query params:
 //   - status: filter by campaign status (draft, scheduled, sending, paused, sent, cancelled)

@@ -5,7 +5,7 @@ import { pigeons } from '@/lib/pigeons'
 // GET /api/contacts/:id
 //
 // Returns a single contact by ID or email address.
-// The Pigeons SDK accepts either format — pass "ctc_abc123" or
+// The Pigeons SDK accepts either format  - pass "ctc_abc123" or
 // "alice@example.com" and it will resolve correctly.
 //
 // Useful for:
@@ -37,13 +37,13 @@ export async function GET(
 // PATCH /api/contacts/:id
 //
 // Updates a contact's mutable fields: firstName, lastName, tags, properties.
-// The email address is immutable — to change it, delete and recreate.
+// The email address is immutable  - to change it, delete and recreate.
 //
 // Tags are replaced wholesale (not merged). If you want to add a tag
 // without removing existing ones, fetch the contact first, merge the
 // tag arrays, then send the update.
 //
-// Properties follow the same replacement semantics — send the full
+// Properties follow the same replacement semantics  - send the full
 // properties object you want the contact to have.
 export async function PATCH(
   request: NextRequest,
@@ -81,7 +81,7 @@ export async function PATCH(
 
 // DELETE /api/contacts/:id
 //
-// Permanently removes a contact. This is irreversible — the contact's
+// Permanently removes a contact. This is irreversible  - the contact's
 // email history is preserved in the emails table, but the contact
 // record and its tags/properties are deleted.
 //

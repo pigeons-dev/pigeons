@@ -73,8 +73,8 @@ inboxesCommand
       console.log(`ID:          ${inbox.id}`)
       console.log(`Email:       ${inbox.emailAddress}`)
       console.log(`Status:      ${inbox.status}`)
-      console.log(`Description: ${inbox.description ?? '—'}`)
-      console.log(`Webhook:     ${inbox.webhookUrl ?? '—'}`)
+      console.log(`Description: ${inbox.description ?? ' -'}`)
+      console.log(`Webhook:     ${inbox.webhookUrl ?? ' -'}`)
       if (inbox.metadata && Object.keys(inbox.metadata).length) {
         console.log(`Metadata:    ${JSON.stringify(inbox.metadata)}`)
       }
@@ -162,7 +162,7 @@ inboxesCommand
       console.log(`From:      ${msg.from}`)
       console.log(`To:        ${Array.isArray(msg.to) ? msg.to.join(', ') : msg.to}`)
       console.log(`Subject:   ${msg.subject}`)
-      console.log(`Thread:    ${msg.threadId ?? '—'}`)
+      console.log(`Thread:    ${msg.threadId ?? ' -'}`)
       console.log(`Date:      ${msg.createdAt}`)
       if (msg.extractedText) {
         console.log(`\n--- Reply ---`)
@@ -250,7 +250,7 @@ inboxesCommand
       console.log(`Subject:      ${thread.subject}`)
       console.log(`Status:       ${thread.status}`)
       console.log(`Messages:     ${thread.messageCount}`)
-      console.log(`Participants: ${thread.participants?.join(', ') ?? '—'}`)
+      console.log(`Participants: ${thread.participants?.join(', ') ?? ' -'}`)
 
       if (thread.messages?.length) {
         console.log('')

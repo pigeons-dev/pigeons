@@ -1,6 +1,6 @@
 # Pigeons Examples
 
-Runnable examples covering every feature of Pigeons — from sending your first email to building an autonomous AI support agent.
+Runnable examples covering every feature of Pigeons  - from sending your first email to building an autonomous AI support agent.
 
 Each example is a self-contained project. Pick one, set your `.env`, and run it.
 
@@ -31,21 +31,21 @@ cd packages/core && pnpm dev
 |---|---|---|
 | [with-typescript](with-typescript/) | TypeScript | Send an email, check delivery status, list emails |
 | [with-python](with-python/) | Python | Same flow in Python |
-| [with-curl](with-curl/) | Shell | Raw HTTP calls — language-agnostic reference |
+| [with-curl](with-curl/) | Shell | Raw HTTP calls  - language-agnostic reference |
 
 ## Transactional Email
 
 | Example | Stack | Description |
 |---|---|---|
 | [nextjs-authentication-emails](nextjs-authentication-emails/) | Next.js | Welcome, email verification, password reset, magic link |
-| [express-order-emails](express-order-emails/) | Express | Order confirmation, shipping update, invoice — with idempotency |
-| [fastapi-notifications](fastapi-notifications/) | FastAPI | Signup notification, activity digest, system alert — scheduling and batch send |
+| [express-order-emails](express-order-emails/) | Express | Order confirmation, shipping update, invoice  - with idempotency |
+| [fastapi-notifications](fastapi-notifications/) | FastAPI | Signup notification, activity digest, system alert  - scheduling and batch send |
 
 ## Templates
 
 | Example | Stack | Description |
 |---|---|---|
-| [email-templates](email-templates/) | TypeScript | Template library including Stripe-style welcome — create, preview, send with variables |
+| [email-templates](email-templates/) | TypeScript | Template library including Stripe-style welcome  - create, preview, send with variables |
 
 ## Inbound Email & Agent Inboxes
 
@@ -69,7 +69,7 @@ cd packages/core && pnpm dev
 |---|---|---|
 | [campaign-send](campaign-send/) | TypeScript | Import contacts, segment, create campaign, send, monitor |
 | [drip-sequence](drip-sequence/) | TypeScript | 3-step onboarding sequence with enrollment and monitoring |
-| [subscription-topics](subscription-topics/) | TypeScript | Per-topic unsubscribe — marketing vs product updates vs changelog |
+| [subscription-topics](subscription-topics/) | TypeScript | Per-topic unsubscribe  - marketing vs product updates vs changelog |
 
 ## Webhooks & Monitoring
 
@@ -82,4 +82,4 @@ cd packages/core && pnpm dev
 
 | Example | Stack | Description |
 |---|---|---|
-| [nextjs-saas-complete](nextjs-saas-complete/) | Next.js | Complete reference app — auth emails, campaigns, webhooks, unsubscribe page, stats |
+| [nextjs-saas-complete](nextjs-saas-complete/) | Next.js | Complete reference app  - auth emails, campaigns, webhooks, unsubscribe page, stats |

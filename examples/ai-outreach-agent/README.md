@@ -48,8 +48,8 @@ Expected output:
 Step 1: Loading contacts from CSV
 
   Loaded 6 prospects from contacts.csv
-    Alice Chen — Engineering Manager at Acme Corp
-    Bob Patel — Head of DevOps at Streamline
+    Alice Chen  - Engineering Manager at Acme Corp
+    Bob Patel  - Head of DevOps at Streamline
     ...
 
 Step 2: Importing contacts into Pigeons
@@ -101,14 +101,14 @@ The `load_prospects()` function reads the CSV using Python's built-in `csv.DictR
 - Tags: `outreach-agent` plus a company slug for segmentation
 - Custom properties: `company` and `role` for personalization
 
-The batch endpoint is atomic — all contacts are created or none are. Already-existing emails are skipped and counted in the `skipped` field.
+The batch endpoint is atomic  - all contacts are created or none are. Already-existing emails are skipped and counted in the `skipped` field.
 
 ### 3. Generate personalized email copy
 
 `generate_email_copy()` calls the Anthropic API to generate a subject and HTML body tailored to each prospect's role and company. The prompt varies by sequence step:
-- **Initial outreach** — curiosity-driven, references their specific role
-- **Follow-up** — shares a concrete insight, suggests a specific time
-- **Final check-in** — short, no-pressure, leaves the door open
+- **Initial outreach**  - curiosity-driven, references their specific role
+- **Follow-up**  - shares a concrete insight, suggests a specific time
+- **Final check-in**  - short, no-pressure, leaves the door open
 
 ### 4. Create a drip sequence
 
@@ -134,19 +134,19 @@ The sequence starts in `draft` status. Steps are created atomically with the seq
 
 ## Customization
 
-**Use your own prospects** — Replace `contacts.csv` with your actual prospect list. The only required columns are `email`, `name`, `company`, and `role`.
+**Use your own prospects**  - Replace `contacts.csv` with your actual prospect list. The only required columns are `email`, `name`, `company`, and `role`.
 
-**Change the LLM prompt** — Edit the `step_prompts` dict in `generate_email_copy()` to adjust tone, length, or messaging for each drip step.
+**Change the LLM prompt**  - Edit the `step_prompts` dict in `generate_email_copy()` to adjust tone, length, or messaging for each drip step.
 
-**Use a different model** — Change the `model` parameter in `generate_email_copy()`. Any Claude model works (e.g. `claude-haiku-4-20250514` for faster/cheaper generation).
+**Use a different model**  - Change the `model` parameter in `generate_email_copy()`. Any Claude model works (e.g. `claude-haiku-4-20250514` for faster/cheaper generation).
 
-**Add more steps** — Add more `email` and `delay` entries to the `steps` list in `create_drip_sequence()`. You can also add `condition` steps to branch based on engagement.
+**Add more steps**  - Add more `email` and `delay` entries to the `steps` list in `create_drip_sequence()`. You can also add `condition` steps to branch based on engagement.
 
-**Use templates** — Instead of inline HTML, create Pigeons templates with merge variables (`{{firstName}}`, `{{company}}`) and reference them by `templateId` in each step. This lets Pigeons personalize per-contact at send time.
+**Use templates**  - Instead of inline HTML, create Pigeons templates with merge variables (`{{firstName}}`, `{{company}}`) and reference them by `templateId` in each step. This lets Pigeons personalize per-contact at send time.
 
 ## Next steps
 
-- [drip-sequence](../drip-sequence/) — Sequence creation in TypeScript with more step types
-- [campaign-send](../campaign-send/) — Broadcast campaigns with audience segmentation
-- [delivery-monitor](../delivery-monitor/) — Track domain warmup and bounce rates
-- [mcp-claude-agent](../mcp-claude-agent/) — Let Claude manage emails through MCP tools
+- [drip-sequence](../drip-sequence/)  - Sequence creation in TypeScript with more step types
+- [campaign-send](../campaign-send/)  - Broadcast campaigns with audience segmentation
+- [delivery-monitor](../delivery-monitor/)  - Track domain warmup and bounce rates
+- [mcp-claude-agent](../mcp-claude-agent/)  - Let Claude manage emails through MCP tools

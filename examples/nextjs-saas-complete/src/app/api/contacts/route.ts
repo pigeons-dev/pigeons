@@ -5,7 +5,7 @@ import { pigeons } from '@/lib/pigeons'
 // GET /api/contacts
 //
 // Lists contacts with pagination and optional tag filtering.
-// Contacts are the audience for campaigns and sequences — every
+// Contacts are the audience for campaigns and sequences  - every
 // user who should receive marketing or lifecycle emails should
 // have a corresponding contact record.
 //

@@ -109,11 +109,11 @@ Templates separate your email design from campaign logic. The example creates a 
 
 ### Contact import
 
-Contacts are batch-imported using `pigeons.contacts.batch()`. Each contact has an email, name, and tags. The batch endpoint is idempotent — re-running the example skips contacts that already exist.
+Contacts are batch-imported using `pigeons.contacts.batch()`. Each contact has an email, name, and tags. The batch endpoint is idempotent  - re-running the example skips contacts that already exist.
 
 ### Campaign creation
 
-A campaign ties a template, audience, and sender identity together. The `audienceFilter` field selects which contacts receive the campaign — here we filter by the `product-updates` tag. The campaign starts in `draft` status and doesn't send until explicitly triggered.
+A campaign ties a template, audience, and sender identity together. The `audienceFilter` field selects which contacts receive the campaign  - here we filter by the `product-updates` tag. The campaign starts in `draft` status and doesn't send until explicitly triggered.
 
 ### Sending
 
@@ -133,15 +133,15 @@ The example polls `pigeons.campaigns.get()` every 3 seconds to show delivery pro
 
 ## API reference
 
-- [`pigeons.templates.create()`](https://pigeons.dev/docs/api/templates#create) — Create a template
-- [`pigeons.contacts.batch()`](https://pigeons.dev/docs/api/contacts#batch) — Batch-create contacts
-- [`pigeons.campaigns.create()`](https://pigeons.dev/docs/api/campaigns#create) — Create a campaign
-- [`pigeons.campaigns.send()`](https://pigeons.dev/docs/api/campaigns#send) — Send or schedule a campaign
-- [`pigeons.campaigns.get()`](https://pigeons.dev/docs/api/campaigns#get) — Get campaign status and stats
+- [`pigeons.templates.create()`](https://pigeons.dev/docs/api/templates#create)  - Create a template
+- [`pigeons.contacts.batch()`](https://pigeons.dev/docs/api/contacts#batch)  - Batch-create contacts
+- [`pigeons.campaigns.create()`](https://pigeons.dev/docs/api/campaigns#create)  - Create a campaign
+- [`pigeons.campaigns.send()`](https://pigeons.dev/docs/api/campaigns#send)  - Send or schedule a campaign
+- [`pigeons.campaigns.get()`](https://pigeons.dev/docs/api/campaigns#get)  - Get campaign status and stats
 
 ## Next steps
 
-- [drip-sequence](../drip-sequence/) — Set up a multi-step automated email sequence
-- [delivery-monitor](../delivery-monitor/) — Track delivery health across domains
-- [email-templates](../email-templates/) — Build a library of reusable templates
-- [inbound-webhook-handler](../inbound-webhook-handler/) — Process delivery events via webhooks instead of polling
+- [drip-sequence](../drip-sequence/)  - Set up a multi-step automated email sequence
+- [delivery-monitor](../delivery-monitor/)  - Track delivery health across domains
+- [email-templates](../email-templates/)  - Build a library of reusable templates
+- [inbound-webhook-handler](../inbound-webhook-handler/)  - Process delivery events via webhooks instead of polling

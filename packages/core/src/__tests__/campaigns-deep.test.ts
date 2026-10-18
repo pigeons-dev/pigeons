@@ -467,7 +467,7 @@ describe('campaign list pagination', () => {
   })
 
   it('returns empty when filtering by nonexistent status', async () => {
-    // All campaigns created in this test are draft or sending — filter for 'archived' status
+    // All campaigns created in this test are draft or sending  - filter for 'archived' status
     // (campaigns don't have archived but we can use a status that no campaign has)
     const { data } = await get('/v1/campaigns?status=sent')
     // May or may not be empty depending on test ordering, but should not error

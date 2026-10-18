@@ -1,6 +1,6 @@
 # AI Support Agent
 
-Autonomous email support powered by LLM + Pigeons. Inbound emails hit your Pigeons inbox, the agent loads the full thread for context, generates a reply with Claude, and sends it back through Pigeons — no human in the loop.
+Autonomous email support powered by LLM + Pigeons. Inbound emails hit your Pigeons inbox, the agent loads the full thread for context, generates a reply with Claude, and sends it back through Pigeons  - no human in the loop.
 
 ## What you'll learn
 
@@ -13,7 +13,7 @@ Autonomous email support powered by LLM + Pigeons. Inbound emails hit your Pigeo
 ## Prerequisites
 
 - Python 3.10+
-- A running Pigeons instance with **inbound email configured** (SES receipt rule, S3 bucket, SNS topic — see the [Pigeons inbound setup guide](https://pigeons.dev/docs/inbound))
+- A running Pigeons instance with **inbound email configured** (SES receipt rule, S3 bucket, SNS topic  - see the [Pigeons inbound setup guide](https://pigeons.dev/docs/inbound))
 - A Pigeons inbox created for support emails
 - A webhook registered to forward `inbox.message.received` events
 - An [Anthropic API key](https://console.anthropic.com/)
@@ -102,14 +102,14 @@ curl -X POST http://localhost:3891/v1/webhooks \
 uvicorn main:app --port 8000
 ```
 
-The agent is now listening. Send an email to your inbox address and watch the logs — you'll see the full pipeline: webhook received, thread loaded, LLM called, reply sent.
+The agent is now listening. Send an email to your inbox address and watch the logs  - you'll see the full pipeline: webhook received, thread loaded, LLM called, reply sent.
 
 ## How to test
 
 1. Send an email to the address configured on your Pigeons inbox (e.g. `support@yourdomain.com`).
-2. Watch the agent logs — you'll see each step of the pipeline.
-3. Check your email — the reply should arrive threaded under your original message.
-4. Reply again — the agent will see the full conversation history and respond accordingly.
+2. Watch the agent logs  - you'll see each step of the pipeline.
+3. Check your email  - the reply should arrive threaded under your original message.
+4. Reply again  - the agent will see the full conversation history and respond accordingly.
 5. Monitor threads at `GET http://localhost:8000/threads`.
 
 For local testing without a real email, you can simulate the webhook:
@@ -134,28 +134,28 @@ curl -X POST http://localhost:8000/webhooks/inbound \
 Pigeons sends a POST when a new email arrives. The payload includes the inbox, message, and thread IDs. The handler:
 
 1. Validates the event type is `inbox.message.received`
-2. Checks the message is inbound (not our own outbound reply — prevents infinite loops)
+2. Checks the message is inbound (not our own outbound reply  - prevents infinite loops)
 3. Delegates to the core agent loop
 
 ### Agent loop (`handle_inbound_message`)
 
 The heart of the agent. For each inbound message:
 
-1. **Loads thread context** — Calls `pigeons.inboxes.threads.get()` for metadata and `pigeons.inboxes.messages.list()` with a `threadId` filter to get the full conversation history.
+1. **Loads thread context**  - Calls `pigeons.inboxes.threads.get()` for metadata and `pigeons.inboxes.messages.list()` with a `threadId` filter to get the full conversation history.
 
-2. **Builds the LLM prompt** — Converts the thread into Anthropic message format. Inbound messages become `user` turns, outbound messages become `assistant` turns. Uses `extractedText` when available to avoid duplicating quoted text.
+2. **Builds the LLM prompt**  - Converts the thread into Anthropic message format. Inbound messages become `user` turns, outbound messages become `assistant` turns. Uses `extractedText` when available to avoid duplicating quoted text.
 
-3. **Generates a reply** — Calls the Claude API with the system prompt (company persona, guidelines) and the full conversation. If the API call fails, the error is logged but the server stays running.
+3. **Generates a reply**  - Calls the Claude API with the system prompt (company persona, guidelines) and the full conversation. If the API call fails, the error is logged but the server stays running.
 
-4. **Detects escalation** — Scans the reply for phrases like "I don't have that information" or "human agent will follow up." If found, updates the thread metadata with an `escalated: true` flag so a human dashboard can filter for threads that need attention.
+4. **Detects escalation**  - Scans the reply for phrases like "I don't have that information" or "human agent will follow up." If found, updates the thread metadata with an `escalated: true` flag so a human dashboard can filter for threads that need attention.
 
-5. **Sends the reply** — Calls `pigeons.inboxes.messages.create()` with `inReplyTo` set to the last inbound message ID. Pigeons handles threading headers (`In-Reply-To`, `References`) and delivers through SES.
+5. **Sends the reply**  - Calls `pigeons.inboxes.messages.create()` with `inReplyTo` set to the last inbound message ID. Pigeons handles threading headers (`In-Reply-To`, `References`) and delivers through SES.
 
 ### Monitoring endpoints
 
-- `GET /threads` — List threads with optional status filter (`open`, `closed`, `snoozed`). Useful for building a dashboard.
-- `POST /threads/{thread_id}/close` — Mark a resolved thread as closed.
-- `GET /health` — Health check for load balancers and uptime monitors.
+- `GET /threads`  - List threads with optional status filter (`open`, `closed`, `snoozed`). Useful for building a dashboard.
+- `POST /threads/{thread_id}/close`  - Mark a resolved thread as closed.
+- `GET /health`  - Health check for load balancers and uptime monitors.
 
 ## Customization
 
@@ -204,6 +204,6 @@ Add a cooldown to avoid replying too rapidly to the same thread. A simple approa
 
 ## Next steps
 
-- [helpdesk-inbox](../helpdesk-inbox/) — Multi-inbox routing, auto-labeling, thread management
-- [ai-outreach-agent](../ai-outreach-agent/) — LLM-personalized outbound campaigns with drip sequences
-- [webhook-event-handler](../webhook-event-handler/) — Handle delivery, bounce, complaint, and open events
+- [helpdesk-inbox](../helpdesk-inbox/)  - Multi-inbox routing, auto-labeling, thread management
+- [ai-outreach-agent](../ai-outreach-agent/)  - LLM-personalized outbound campaigns with drip sequences
+- [webhook-event-handler](../webhook-event-handler/)  - Handle delivery, bounce, complaint, and open events

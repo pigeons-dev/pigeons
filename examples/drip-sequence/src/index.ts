@@ -1,7 +1,7 @@
 /**
  * Pigeons Drip Sequence Example
  *
- * Demonstrates multi-step drip sequences — automated email sequences that
+ * Demonstrates multi-step drip sequences  - automated email sequences that
  * send a series of emails to contacts over time, with configurable delays
  * between each step.
  *
@@ -48,7 +48,7 @@ async function ensureTemplate(params: {
     console.log(`  + ${tpl.slug} (${tpl.id})`)
     return tpl.id
   } catch (err: any) {
-    // Template already exists — fetch it to get the ID
+    // Template already exists  - fetch it to get the ID
     if (err.statusCode === 409 || err.code === 'already_exists') {
       const existing = await pigeons.templates.get(params.slug)
       console.log(`  ~ ${params.slug} (already exists: ${existing.id})`)
@@ -81,8 +81,8 @@ const welcomeTemplateId = await ensureTemplate({
       <li><a href="{{docsUrl}}">Read the docs</a></li>
       <li>Send your first email via the API</li>
     </ol>
-    <p>If you have any questions, just reply to this email — we're here to help.</p>
-    <p>— The {{companyName}} Team</p>
+    <p>If you have any questions, just reply to this email  - we're here to help.</p>
+    <p> - The {{companyName}} Team</p>
   `,
   sampleData: {
     firstName: 'Jane',
@@ -106,7 +106,7 @@ const tipsTemplateId = await ensureTemplate({
     <h3>3. Track opens</h3>
     <p>Enable open tracking to see who's reading your emails and when.</p>
     <p><a href="{{docsUrl}}">Explore the full docs &rarr;</a></p>
-    <p>— The {{companyName}} Team</p>
+    <p> - The {{companyName}} Team</p>
   `,
   sampleData: {
     firstName: 'Jane',
@@ -130,7 +130,7 @@ const checkinTemplateId = await ensureTemplate({
     </ul>
     <p>If anything is blocking you, reply to this email and we'll get you sorted.</p>
     <p>Or if everything is great, we'd love a <a href="{{feedbackUrl}}">quick rating</a>.</p>
-    <p>— The {{companyName}} Team</p>
+    <p> - The {{companyName}} Team</p>
   `,
   sampleData: {
     firstName: 'Jane',
@@ -173,7 +173,7 @@ const sequence = await pigeons.sequences.create({
   // The steps define the drip cadence. Each step runs in order.
   // Contacts progress through steps one at a time.
   steps: [
-    // Step 0: Welcome email — sent immediately when a contact is enrolled.
+    // Step 0: Welcome email  - sent immediately when a contact is enrolled.
     // This is the first touchpoint. No delay before it.
     {
       type: 'email',
@@ -194,7 +194,7 @@ const sequence = await pigeons.sequences.create({
       delayDuration: '2d',
     },
 
-    // Step 2: Tips & tricks email — sent after the 2-day delay.
+    // Step 2: Tips & tricks email  - sent after the 2-day delay.
     {
       type: 'email',
       templateId: tipsTemplateId,
@@ -211,7 +211,7 @@ const sequence = await pigeons.sequences.create({
       delayDuration: '5d',
     },
 
-    // Step 4: Check-in email — the final touchpoint.
+    // Step 4: Check-in email  - the final touchpoint.
     // After this step completes, the enrollment status changes to "completed".
     {
       type: 'email',
@@ -266,7 +266,7 @@ for (const contact of sampleContacts) {
     contactIds.push(created.id)
     console.log(`  + ${created.email} (${created.id})`)
   } catch (err: any) {
-    // Contact already exists — fetch to get ID
+    // Contact already exists  - fetch to get ID
     if (err.statusCode === 409 || err.code === 'already_exists') {
       const existing = await pigeons.contacts.get(contact.email)
       contactIds.push(existing.id)
@@ -304,10 +304,10 @@ console.log()
 // when they were enrolled.
 //
 // Enrollment lifecycle:
-//   "active"    — contact is progressing through steps
-//   "completed" — contact finished all steps
-//   "exited"    — contact was manually removed or hit an exit condition
-//   "failed"    — a step failed (e.g., email bounce)
+//   "active"     - contact is progressing through steps
+//   "completed"  - contact finished all steps
+//   "exited"     - contact was manually removed or hit an exit condition
+//   "failed"     - a step failed (e.g., email bounce)
 
 console.log('Enrolling contacts...\n')
 

@@ -39,7 +39,7 @@ topicsCommand
       const t = await client.get(`/v1/topics/${id}`)
       console.log(`ID:          ${t.id}`)
       console.log(`Name:        ${t.name}`)
-      console.log(`Description: ${t.description ?? '—'}`)
+      console.log(`Description: ${t.description ?? ' -'}`)
       console.log(`Created:     ${t.createdAt}`)
     } catch (err) {
       console.error('Failed:', err instanceof Error ? err.message : err)

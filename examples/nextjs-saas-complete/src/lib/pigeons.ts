@@ -8,7 +8,7 @@ import { Pigeons } from '@pigeons/pigeons-ts'
 // the values from your running Pigeons instance.
 //
 // The client is created once at module load time and reused for
-// every request — no need to instantiate per-request.
+// every request  - no need to instantiate per-request.
 export const pigeons = new Pigeons({
   baseUrl: process.env.PIGEONS_URL,
   apiKey: process.env.PIGEONS_API_KEY,

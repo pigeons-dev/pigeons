@@ -129,7 +129,7 @@ Response:
   "inboxes": [
     {
       "inbox_id": "inb_abc123",
-      "inbox_name": "Helpdesk — Support",
+      "inbox_name": "Helpdesk  - Support",
       "email_address": "support@example.com",
       "threads": { "open": 12, "closed": 45, "snoozed": 3 }
     }
@@ -173,22 +173,22 @@ Creates three inboxes via `pigeons.inboxes.create()`, each bound to a specific e
 
 The core of the helpdesk. When Pigeons receives an inbound email, it fires a webhook with `{ event, data: { inbox_id, message_id, thread_id } }`. The handler:
 
-1. **Fetches the message** — the webhook payload only contains IDs to keep payloads small. We call `pigeons.inboxes.messages.get()` to read the subject and body.
-2. **Detects labels** — scans for keywords like "refund" (billing), "bug" (technical), "pricing" (sales), and "urgent". A message can receive multiple labels.
-3. **Sends an auto-reply** — each inbox type has its own reply template. The reply is sent via `pigeons.inboxes.messages.create()` with `inReplyTo` set so it threads correctly in the sender's email client.
+1. **Fetches the message**  - the webhook payload only contains IDs to keep payloads small. We call `pigeons.inboxes.messages.get()` to read the subject and body.
+2. **Detects labels**  - scans for keywords like "refund" (billing), "bug" (technical), "pricing" (sales), and "urgent". A message can receive multiple labels.
+3. **Sends an auto-reply**  - each inbox type has its own reply template. The reply is sent via `pigeons.inboxes.messages.create()` with `inReplyTo` set so it threads correctly in the sender's email client.
 
 ### Label detection
 
 Simple keyword matching against subject + body text. Each rule maps a list of keywords to a label. Rules are evaluated independently, so a message about an "urgent refund" gets both `urgent` and `billing` labels.
 
-In production, you might replace this with an LLM classifier for more nuanced categorization — see the [ai-support-agent](../ai-support-agent/) example.
+In production, you might replace this with an LLM classifier for more nuanced categorization  - see the [ai-support-agent](../ai-support-agent/) example.
 
 ### Thread management
 
 Threads are created automatically by Pigeons when a new inbound email arrives (or appended to an existing thread if the email is a reply). The helpdesk exposes two endpoints for managing thread lifecycle:
 
-- `PATCH /threads/{inbox_id}/{thread_id}` — change status to `open`, `closed`, or `snoozed`. Optionally attach metadata (assigned agent, SLA deadline, snooze reason).
-- `GET /threads/{inbox_id}` — list threads with optional status filter and cursor pagination.
+- `PATCH /threads/{inbox_id}/{thread_id}`  - change status to `open`, `closed`, or `snoozed`. Optionally attach metadata (assigned agent, SLA deadline, snooze reason).
+- `GET /threads/{inbox_id}`  - list threads with optional status filter and cursor pagination.
 
 ### Dashboard
 
@@ -196,9 +196,9 @@ Aggregates thread counts per inbox by querying each status separately. Gives a q
 
 ## Next steps
 
-- [ai-support-agent](../ai-support-agent/) — Replace keyword detection with an LLM that reads inbound emails and drafts replies
-- [webhook-event-handler](../webhook-event-handler/) — Handle delivery, bounce, and complaint events alongside inbound
-- [inbound-webhook-handler](../inbound-webhook-handler/) — Simpler single-inbox inbound processing
+- [ai-support-agent](../ai-support-agent/)  - Replace keyword detection with an LLM that reads inbound emails and drafts replies
+- [webhook-event-handler](../webhook-event-handler/)  - Handle delivery, bounce, and complaint events alongside inbound
+- [inbound-webhook-handler](../inbound-webhook-handler/)  - Simpler single-inbox inbound processing
 - Add webhook signature verification using `X-Pigeons-Signature` header and your webhook secret
 - Persist the inbox registry to a database instead of in-memory
 - Add assignment logic: route threads to specific agents based on labels

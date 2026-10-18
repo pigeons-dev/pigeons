@@ -7,10 +7,10 @@ import { NextRequest, NextResponse } from 'next/server'
 // without polling.
 //
 // Supported events:
-//   - email.delivered  — email accepted by the recipient's mail server
-//   - email.bounced    — email bounced (hard or soft)
-//   - email.complained — recipient marked the email as spam
-//   - email.opened     — recipient opened the email (requires open tracking)
+//   - email.delivered   - email accepted by the recipient's mail server
+//   - email.bounced     - email bounced (hard or soft)
+//   - email.complained  - recipient marked the email as spam
+//   - email.opened      - recipient opened the email (requires open tracking)
 //
 // Setup:
 //   1. Register a webhook in Pigeons pointing to this URL:
@@ -24,7 +24,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // Security: In production, you should verify the webhook signature
 // using HMAC-SHA256. Pigeons signs each payload with your webhook secret
 // and includes the signature in the X-Pigeons-Signature header.
-// This example logs the events for simplicity — add signature
+// This example logs the events for simplicity  - add signature
 // verification before deploying.
 
 // In-memory event log for demonstration purposes.
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     // }
 
     // Route the event to the appropriate handler.
-    // Each handler updates your internal state — in a real app,
+    // Each handler updates your internal state  - in a real app,
     // these would write to your database, update user records,
     // trigger alerts, etc.
     switch (event) {
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         break
 
       default:
-        // Log unknown events but don't reject them — Pigeons may add
+        // Log unknown events but don't reject them  - Pigeons may add
         // new event types in the future, and returning a non-2xx would
         // trigger retries.
         console.log(`[webhook] unknown event: ${event}`)
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
 
 function handleDelivered(data: WebhookPayload['data']) {
   // Email was accepted by the recipient's mail server.
-  // This is the happy path — update your UI to show "delivered".
+  // This is the happy path  - update your UI to show "delivered".
   console.log(
     `[webhook] delivered: ${data.email_id} to ${data.to}`,
   )
@@ -148,7 +148,7 @@ function handleBounced(data: WebhookPayload['data']) {
 }
 
 function handleComplained(data: WebhookPayload['data']) {
-  // Recipient marked the email as spam. This is serious — continued
+  // Recipient marked the email as spam. This is serious  - continued
   // sends to complainers will damage your sender reputation.
   // Immediately suppress this contact from all future sends.
   console.log(

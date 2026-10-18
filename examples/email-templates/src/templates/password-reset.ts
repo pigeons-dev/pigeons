@@ -49,7 +49,7 @@ function Template({ name = 'there', companyName = 'Acme', resetUrl = 'https://ap
             </Button>
             <Text style={{ fontSize: '14px', lineHeight: '24px', color: '#71717a', marginTop: '16px' }}>
               This link expires in {expiresIn}. If you didn't request a password reset,
-              you can safely ignore this email — your password will remain unchanged.
+              you can safely ignore this email  - your password will remain unchanged.
             </Text>
             <Hr style={{ borderColor: '#e4e4e7', margin: '24px 0' }} />
             <Text style={{ fontSize: '12px', color: '#a1a1aa' }}>
