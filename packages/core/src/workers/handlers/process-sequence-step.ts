@@ -153,7 +153,7 @@ export async function handleProcessSequenceStep(
   }
 
   if (step.type === 'delay') {
-    // Delay steps schedule the next step with a delay offset — handled below
+    // Delay steps schedule the next step with a delay offset  - handled below
   }
 
   if (step.type === 'condition') {

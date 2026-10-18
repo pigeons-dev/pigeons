@@ -1,5 +1,5 @@
 """
-LangChain Email Tools — Demo Agent
+LangChain Email Tools  - Demo Agent
 
 Creates a LangChain ReAct agent with Pigeons email tools and runs
 example prompts to demonstrate sending, checking, and managing email

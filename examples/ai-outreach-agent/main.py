@@ -1,5 +1,5 @@
 """
-AI Outreach Agent — Pigeons Example
+AI Outreach Agent  - Pigeons Example
 
 An autonomous outreach agent that:
   1. Reads prospect contacts from a CSV file
@@ -78,7 +78,7 @@ def load_prospects(path: Path) -> list[Prospect]:
     Parse the CSV file and return a list of Prospect objects.
 
     The CSV must have columns: email, name, company, role.
-    Uses the stdlib csv module — no pandas dependency needed.
+    Uses the stdlib csv module  - no pandas dependency needed.
     """
     prospects: list[Prospect] = []
 
@@ -152,7 +152,7 @@ def generate_email_copy(
     Args:
         client: Anthropic SDK client.
         prospect: The prospect to personalize for.
-        step: One of "initial", "follow-up", or "final" — controls the tone.
+        step: One of "initial", "follow-up", or "final"  - controls the tone.
 
     Returns:
         A dict with "subject" and "html" keys.
@@ -162,7 +162,7 @@ def generate_email_copy(
         "initial": (
             "Write the initial outreach email. Be genuinely curious about their "
             "work. Mention something specific about their role and company. "
-            "Keep it under 150 words. End with a soft ask — would they be open "
+            "Keep it under 150 words. End with a soft ask  - would they be open "
             "to a 15-minute chat?"
         ),
         "follow-up": (
@@ -172,7 +172,7 @@ def generate_email_copy(
             "100 words. End with a specific time suggestion."
         ),
         "final": (
-            "Write a final check-in email. Keep it very short — under 60 words. "
+            "Write a final check-in email. Keep it very short  - under 60 words. "
             "Acknowledge that they're busy. Leave the door open without pressure. "
             "Sign off warmly."
         ),
@@ -192,7 +192,7 @@ Your product is a developer tool that helps engineering teams ship faster.
 Respond with EXACTLY this format (no markdown fences, no extra text):
 SUBJECT: <the subject line>
 BODY:
-<the HTML email body — use <p> tags for paragraphs>"""
+<the HTML email body  - use <p> tags for paragraphs>"""
 
     message = client.messages.create(
         model="claude-sonnet-4-20250514",
@@ -235,11 +235,11 @@ def create_drip_sequence(
     Build a 3-step drip sequence with LLM-personalized email content.
 
     Sequence structure:
-      Step 0 (email)  — Initial outreach, sent immediately on enrollment
-      Step 1 (delay)  — Wait 3 days
-      Step 2 (email)  — Follow-up with a value proposition
-      Step 3 (delay)  — Wait 4 more days (day 7 total)
-      Step 4 (email)  — Final check-in
+      Step 0 (email)   - Initial outreach, sent immediately on enrollment
+      Step 1 (delay)   - Wait 3 days
+      Step 2 (email)   - Follow-up with a value proposition
+      Step 3 (delay)   - Wait 4 more days (day 7 total)
+      Step 4 (email)   - Final check-in
 
     We generate the email copy using the first prospect as a representative
     sample. In production you'd use Pigeons templates with merge variables
@@ -267,11 +267,11 @@ def create_drip_sequence(
     # Build the sequence with interleaved email and delay steps.
     # The Pigeons sequence API accepts all steps in a single create call.
     # Step types:
-    #   "email"  — sends an email to the enrolled contact
-    #   "delay"  — pauses the sequence for the specified duration
-    #   "condition" — branches based on engagement (not used here)
+    #   "email"   - sends an email to the enrolled contact
+    #   "delay"   - pauses the sequence for the specified duration
+    #   "condition"  - branches based on engagement (not used here)
     sequence = pigeons.sequences.create({
-        "name": "AI Outreach — Drip Sequence",
+        "name": "AI Outreach  - Drip Sequence",
         "steps": [
             # Day 0: Initial outreach
             {
@@ -339,7 +339,7 @@ def activate_and_enroll(
 
     Returns a list of enrollment objects.
     """
-    # Activate the sequence — transitions from "draft" to "active".
+    # Activate the sequence  - transitions from "draft" to "active".
     # This validates that the sequence has at least one step.
     activated = pigeons.sequences.activate(sequence_id)
     print(f"  Sequence activated: {activated['status']}")
@@ -393,7 +393,7 @@ def monitor_progress(pigeons: Pigeons, sequence_id: str) -> None:
         time.sleep(POLL_INTERVAL)
     else:
         print(
-            f"  Still processing after {MAX_POLLS * POLL_INTERVAL}s — "
+            f"  Still processing after {MAX_POLLS * POLL_INTERVAL}s  - "
             "check the Pigeons API for final status."
         )
 
@@ -445,7 +445,7 @@ def main() -> None:
     prospects = load_prospects(CSV_PATH)
     print(f"  Loaded {len(prospects)} prospects from {CSV_PATH.name}")
     for p in prospects:
-        print(f"    {p.name} — {p.role} at {p.company}")
+        print(f"    {p.name}  - {p.role} at {p.company}")
 
     # ── Step 2: Batch-import contacts ──────────────────────────────────────
     print("\nStep 2: Importing contacts into Pigeons\n")

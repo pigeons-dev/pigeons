@@ -1,4 +1,4 @@
-# Quick Start — TypeScript
+# Quick Start  - TypeScript
 
 Send your first email with the Pigeons TypeScript SDK in under 5 minutes.
 
@@ -61,15 +61,15 @@ Done!
 
 The example covers three SDK methods:
 
-1. **`pigeons.emails.send()`** — Queues an email for delivery. Returns immediately with the email object (status: `queued`). The background worker picks it up and sends it through SES.
+1. **`pigeons.emails.send()`**  - Queues an email for delivery. Returns immediately with the email object (status: `queued`). The background worker picks it up and sends it through SES.
 
-2. **`pigeons.emails.get(id)`** — Fetches the current state of an email by ID. Status progresses through: `queued` → `sending` → `sent` → `delivered`. If something goes wrong: `bounced`, `complained`, or `failed`.
+2. **`pigeons.emails.get(id)`**  - Fetches the current state of an email by ID. Status progresses through: `queued` → `sending` → `sent` → `delivered`. If something goes wrong: `bounced`, `complained`, or `failed`.
 
-3. **`pigeons.emails.list()`** — Returns a paginated list of emails. Supports filtering by `status`, `limit`, and `cursor` for pagination.
+3. **`pigeons.emails.list()`**  - Returns a paginated list of emails. Supports filtering by `status`, `limit`, and `cursor` for pagination.
 
 ## Next steps
 
-- [with-python](../with-python/) — Same flow in Python
-- [with-curl](../with-curl/) — Raw HTTP calls without an SDK
-- [email-templates](../email-templates/) — Use React Email templates instead of inline HTML
-- [webhook-event-handler](../webhook-event-handler/) — Get delivery/bounce/complaint events in real-time instead of polling
+- [with-python](../with-python/)  - Same flow in Python
+- [with-curl](../with-curl/)  - Raw HTTP calls without an SDK
+- [email-templates](../email-templates/)  - Use React Email templates instead of inline HTML
+- [webhook-event-handler](../webhook-event-handler/)  - Get delivery/bounce/complaint events in real-time instead of polling

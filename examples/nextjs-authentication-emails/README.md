@@ -128,6 +128,6 @@ Sends a passwordless login link with inline HTML. The magic link contains a one-
 
 ## Next steps
 
-- [with-typescript](../with-typescript/) — Basic SDK usage: send, get, list
-- [email-templates](../email-templates/) — Build templates with React Email
-- [with-curl](../with-curl/) — Raw HTTP calls for any language
+- [with-typescript](../with-typescript/)  - Basic SDK usage: send, get, list
+- [email-templates](../email-templates/)  - Build templates with React Email
+- [with-curl](../with-curl/)  - Raw HTTP calls for any language

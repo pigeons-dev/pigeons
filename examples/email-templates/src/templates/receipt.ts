@@ -15,7 +15,7 @@
 
 export const slug = 'receipt'
 export const name = 'Payment Receipt'
-export const subject = 'Your receipt from {{companyName}} — {{invoiceNumber}}'
+export const subject = 'Your receipt from {{companyName}}  - {{invoiceNumber}}'
 
 export const body = `
 import { Html, Head, Body, Container, Section, Text, Button, Hr, Row, Column } from '@react-email/components'

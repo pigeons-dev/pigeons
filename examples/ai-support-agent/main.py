@@ -1,9 +1,9 @@
 """
-AI Support Agent — Autonomous email support powered by LLM + Pigeons.
+AI Support Agent  - Autonomous email support powered by LLM + Pigeons.
 
 Receives inbound emails via Pigeons webhooks, loads the full thread
 for context, generates a reply using Claude, and sends it back through
-Pigeons — all without human intervention.
+Pigeons  - all without human intervention.
 
 Run:
     uvicorn main:app --port 8000
@@ -62,7 +62,7 @@ Guidelines:
 - Never fabricate information. If you don't know, say "I don't have that
   information" and offer to escalate.
 - Keep replies under 200 words unless a longer explanation is genuinely needed.
-- Do not include a subject line — only the reply body.
+- Do not include a subject line  - only the reply body.
 - Sign off with "Best,\\nThe {COMPANY_NAME} Team".
 """
 
@@ -145,7 +145,7 @@ async def handle_inbound_message(
     thread_messages.reverse()
 
     logger.info(
-        "Thread '%s' — %d messages, %s",
+        "Thread '%s'  - %d messages, %s",
         thread["subject"],
         len(thread_messages),
         [m["direction"] for m in thread_messages],
@@ -158,12 +158,12 @@ async def handle_inbound_message(
     conversation = build_messages(thread_messages)
 
     if not conversation:
-        logger.warning("Thread %s has no message content — skipping", thread_id)
+        logger.warning("Thread %s has no message content  - skipping", thread_id)
         return {"action": "skipped", "reason": "empty thread"}
 
     # ── 3. Generate a reply with Claude ──────────────────────────────────
     # Call the Anthropic API with the full conversation. If the API call
-    # fails, we log the error but don't crash — the customer just won't
+    # fails, we log the error but don't crash  - the customer just won't
     # get an immediate auto-reply.
 
     logger.info("Generating reply for thread '%s'...", thread["subject"])
@@ -275,7 +275,7 @@ async def webhook_inbound(request: Request) -> dict[str, Any]:
         logger.info("Ignoring message for inbox %s (not %s)", inbox_id, INBOX_ID)
         return {"status": "ignored", "reason": "different inbox"}
 
-    # Fetch the message to check direction — only reply to inbound messages.
+    # Fetch the message to check direction  - only reply to inbound messages.
     # This prevents infinite loops where the agent replies to its own outbound
     # messages.
     message: dict[str, Any] = pigeons.inboxes.messages.get(inbox_id, message_id)
@@ -300,8 +300,8 @@ async def list_threads(
     """List recent threads for monitoring.
 
     Query params:
-        status — Filter by thread status: open, closed, snoozed
-        limit  — Number of threads to return (default 25)
+        status  - Filter by thread status: open, closed, snoozed
+        limit   - Number of threads to return (default 25)
     """
     params: dict[str, Any] = {"limit": limit}
     if status:

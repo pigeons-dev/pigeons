@@ -152,7 +152,7 @@ export async function verifyDomain(db: DB, config: Config, id: string) {
         }),
       )
     } catch {
-      // Non-critical — MAIL FROM can be configured later
+      // Non-critical  - MAIL FROM can be configured later
     }
   }
 

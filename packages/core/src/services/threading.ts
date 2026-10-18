@@ -148,7 +148,7 @@ export async function resolveThread(
     }
   }
 
-  // No match — create new thread
+  // No match  - create new thread
   const threadId = generateId('thread')
   const participants = [
     { email: opts.from },

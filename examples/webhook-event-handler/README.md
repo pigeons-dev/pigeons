@@ -1,6 +1,6 @@
 # Webhook Event Handler
 
-Handle email delivery lifecycle events from Pigeons — delivery confirmations, bounces, complaints, opens, and failures — with an Express webhook server.
+Handle email delivery lifecycle events from Pigeons  - delivery confirmations, bounces, complaints, opens, and failures  - with an Express webhook server.
 
 ## What you'll learn
 
@@ -62,9 +62,9 @@ Expected output:
 Webhook event handler listening on http://localhost:4000
 
 Endpoints:
-  POST http://localhost:4000/webhooks/pigeons  — receives webhook events
-  GET  http://localhost:4000/events             — view received events
-  GET  http://localhost:4000/health             — health check
+  POST http://localhost:4000/webhooks/pigeons   - receives webhook events
+  GET  http://localhost:4000/events              - view received events
+  GET  http://localhost:4000/health              - health check
 
 Webhook registered:
   ID:     whk_abc123
@@ -160,7 +160,7 @@ const webhook = await pigeons.webhooks.create({
 })
 ```
 
-The response includes a `secret` (e.g., `whsec_...`) used to verify webhook signatures. This secret is only returned on `create()` — subsequent `get()` and `list()` calls strip it.
+The response includes a `secret` (e.g., `whsec_...`) used to verify webhook signatures. This secret is only returned on `create()`  - subsequent `get()` and `list()` calls strip it.
 
 ### Signature verification
 
@@ -176,11 +176,11 @@ The server captures the raw request body before JSON parsing (via the `verify` c
 
 The webhook handler uses a switch on `payload.event` to dispatch to typed handler functions. Each handler logs what happened and returns an action string describing what it did:
 
-- **`email.delivered`** — Log success, update internal status
-- **`email.bounced`** — Check bounce type; hard bounces trigger immediate contact suppression
-- **`email.complained`** — Immediate permanent suppression (complaints are the most damaging signal)
-- **`email.opened`** — Log the open timestamp for engagement tracking
-- **`email.failed`** — Log the error for investigation
+- **`email.delivered`**  - Log success, update internal status
+- **`email.bounced`**  - Check bounce type; hard bounces trigger immediate contact suppression
+- **`email.complained`**  - Immediate permanent suppression (complaints are the most damaging signal)
+- **`email.opened`**  - Log the open timestamp for engagement tracking
+- **`email.failed`**  - Log the error for investigation
 
 ### Idempotency
 
@@ -258,6 +258,6 @@ Pigeons retries failed deliveries up to 3 times with exponential backoff (1m, 5m
 
 ## Next steps
 
-- [inbound-webhook-handler](../inbound-webhook-handler/) — Handle incoming emails with auto-replies and threading
-- [delivery-monitor](../delivery-monitor/) — Poll delivery stats and track sender reputation metrics
-- [campaign-send](../campaign-send/) — Send campaigns and monitor delivery with webhooks
+- [inbound-webhook-handler](../inbound-webhook-handler/)  - Handle incoming emails with auto-replies and threading
+- [delivery-monitor](../delivery-monitor/)  - Poll delivery stats and track sender reputation metrics
+- [campaign-send](../campaign-send/)  - Send campaigns and monitor delivery with webhooks

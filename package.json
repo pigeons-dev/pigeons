@@ -1,7 +1,7 @@
 {
   "name": "pigeons",
   "private": true,
-  "description": "Open-source, self-hosted email infrastructure for developers and AI agents",
+  "description": "Open source, self-hosted email infrastructure for developers and AI agents",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

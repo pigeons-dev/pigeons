@@ -29,7 +29,7 @@ beforeAll(startAll, 120_000)
 afterAll(stopAll)
 
 // =====================================================
-// Outbound — send via API, SES delivers, events return
+// Outbound - send via API, SES delivers, events return
 // =====================================================
 
 describe('outbound email via SES', () => {
@@ -96,7 +96,7 @@ describe('outbound email via SES', () => {
 })
 
 // =====================================================
-// Agent inbox — full inbound pipeline
+// Agent inbox - full inbound pipeline
 // =====================================================
 
 describe('agent inbox inbound pipeline', () => {
@@ -118,7 +118,7 @@ describe('agent inbox inbound pipeline', () => {
 
   it('receives an inbound email routed to the inbox', async () => {
     const subject = `Inbound ${uid()}`
-    const body = 'Hello from outside — E2E inbound test.'
+    const body = 'Hello from outside - E2E inbound test.'
 
     await sendInboundTestEmail({
       from: `test-sender@${SENDER_DOMAIN}`,
@@ -148,7 +148,7 @@ describe('agent inbox inbound pipeline', () => {
 })
 
 // =====================================================
-// Two-way conversation — reply threading
+// Two-way conversation - reply threading
 // =====================================================
 
 describe('two-way conversation', () => {
@@ -229,7 +229,7 @@ describe('reply extraction', () => {
 })
 
 // =====================================================
-// Inbox lifecycle — pause / resume
+// Inbox lifecycle - pause / resume
 // =====================================================
 
 describe('inbox lifecycle', () => {
@@ -271,7 +271,7 @@ describe('webhook registration', () => {
 })
 
 // =====================================================
-// Edge cases — paused inbox drops inbound
+// Edge cases - paused inbox drops inbound
 // =====================================================
 
 describe('paused inbox ignores inbound', () => {
@@ -304,7 +304,7 @@ describe('paused inbox ignores inbound', () => {
 })
 
 // =====================================================
-// Edge cases — batch send
+// Edge cases - batch send
 // =====================================================
 
 describe('batch send', () => {
@@ -326,7 +326,7 @@ describe('batch send', () => {
 })
 
 // =====================================================
-// Edge cases — idempotent sends
+// Edge cases - idempotent sends
 // =====================================================
 
 describe('idempotent sends', () => {
@@ -356,7 +356,7 @@ describe('idempotent sends', () => {
 })
 
 // =====================================================
-// Edge cases — cancel a queued email
+// Edge cases - cancel a queued email
 // =====================================================
 
 describe('email cancel', () => {
@@ -394,7 +394,7 @@ describe('email cancel', () => {
 })
 
 // =====================================================
-// Edge cases — thread status management
+// Edge cases - thread status management
 // =====================================================
 
 describe('thread status management', () => {
@@ -448,7 +448,7 @@ describe('thread status management', () => {
 })
 
 // =====================================================
-// Edge cases — inbox soft delete
+// Edge cases - inbox soft delete
 // =====================================================
 
 describe('inbox soft delete', () => {
@@ -488,7 +488,7 @@ describe('inbox soft delete', () => {
 })
 
 // =====================================================
-// Open tracking — pixel injection and recording
+// Open tracking - pixel injection and recording
 // =====================================================
 
 describe('open tracking', () => {
@@ -586,7 +586,7 @@ describe('open tracking', () => {
 })
 
 // =====================================================
-// Deliverability stats — domain and global
+// Deliverability stats - domain and global
 // =====================================================
 
 describe('deliverability stats', () => {
@@ -628,7 +628,7 @@ describe('deliverability stats', () => {
     expect(typeof s.complaintRate).toBe('number')
     expect(typeof s.openRate).toBe('number')
 
-    // Previous tests sent emails through this domain — should have some volume
+    // Previous tests sent emails through this domain - should have some volume
     expect(s.sent).toBeGreaterThan(0)
   })
 
@@ -677,7 +677,7 @@ describe('deliverability stats', () => {
 })
 
 // =====================================================
-// Edge cases — auth failures
+// Edge cases - auth failures
 // =====================================================
 
 describe('auth edge cases', () => {
@@ -702,7 +702,7 @@ describe('auth edge cases', () => {
 })
 
 // =====================================================
-// Edge cases — validation errors
+// Edge cases - validation errors
 // =====================================================
 
 describe('validation errors', () => {
@@ -748,7 +748,7 @@ describe('validation errors', () => {
 })
 
 // =====================================================
-// Edge cases — catch-all inbox
+// Edge cases - catch-all inbox
 // =====================================================
 
 describe('catch-all inbox', () => {
@@ -787,7 +787,7 @@ describe('catch-all inbox', () => {
 })
 
 // =====================================================
-// Edge cases — email list filtering
+// Edge cases - email list filtering
 // =====================================================
 
 describe('email list and filtering', () => {
@@ -815,7 +815,7 @@ describe('email list and filtering', () => {
 })
 
 // =====================================================
-// Subscription topics — CRUD
+// Subscription topics - CRUD
 // =====================================================
 
 describe('subscription topics', () => {
@@ -1026,7 +1026,7 @@ describe('campaign with topic filtering', () => {
 })
 
 // =====================================================
-// Campaign lifecycle — update, cancel, pause/resume
+// Campaign lifecycle - update, cancel, pause/resume
 // =====================================================
 
 describe('campaign lifecycle', () => {
@@ -1085,7 +1085,7 @@ describe('campaign lifecycle', () => {
 })
 
 // =====================================================
-// Sequences — create, activate, enroll, topic filtering
+// Sequences - create, activate, enroll, topic filtering
 // =====================================================
 
 describe('sequence with topic filtering', () => {

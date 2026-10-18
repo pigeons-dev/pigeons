@@ -1,5 +1,5 @@
 """
-Helpdesk Inbox — Pigeons + FastAPI
+Helpdesk Inbox  - Pigeons + FastAPI
 
 A multi-inbox helpdesk system that demonstrates:
   - Creating dedicated inboxes for support, billing, and sales
@@ -89,7 +89,7 @@ class DashboardResponse(BaseModel):
 
 # ── Inbox Configuration ───────────────────────────────────────────────────────
 # Each inbox has a name, email address prefix, description, and an auto-reply
-# template. In production you'd store this in a database — here we keep it
+# template. In production you'd store this in a database  - here we keep it
 # simple with a module-level dict.
 
 INBOX_CONFIGS: dict[str, dict] = {
@@ -144,7 +144,7 @@ INBOX_CONFIGS: dict[str, dict] = {
 # the message for easy filtering and routing.
 #
 # In a production system you might use an LLM classifier here instead of
-# keyword matching — see the ai-support-agent example for that approach.
+# keyword matching  - see the ai-support-agent example for that approach.
 
 LABEL_RULES: list[dict] = [
     # Billing-related keywords
@@ -214,7 +214,7 @@ async def setup_inboxes() -> InboxIds:
     - Auto-reply disabled (we handle replies manually in the webhook handler)
 
     Call this once when setting up the helpdesk. Calling it again will create
-    duplicate inboxes — in production you'd add idempotency checks.
+    duplicate inboxes  - in production you'd add idempotency checks.
     """
     ids: dict[str, str] = {}
 
@@ -225,7 +225,7 @@ async def setup_inboxes() -> InboxIds:
         # emailAddress ties this inbox to a specific address on your domain.
         # Pigeons routes inbound emails to the matching inbox automatically.
         inbox = pigeons.inboxes.create({
-            "name": f"Helpdesk — {config['name']}",
+            "name": f"Helpdesk  - {config['name']}",
             "emailAddress": email_address,
             "description": config["description"],
             "autoReplyEnabled": False,  # We send our own auto-replies below
@@ -371,9 +371,9 @@ async def update_thread(
     """Update a thread's status (close, snooze, or reopen).
 
     Thread lifecycle in a helpdesk:
-      - open:    New or active — needs a response from the team.
-      - closed:  Resolved — the customer's issue has been handled.
-      - snoozed: Deferred — will be revisited later (e.g. waiting on customer).
+      - open:    New or active  - needs a response from the team.
+      - closed:  Resolved  - the customer's issue has been handled.
+      - snoozed: Deferred  - will be revisited later (e.g. waiting on customer).
 
     You can also attach arbitrary metadata to threads for your own use
     (e.g. assigned agent, priority level, SLA deadline).
@@ -412,9 +412,9 @@ async def list_threads(
     the next page.
 
     Examples:
-      GET /threads/inb_abc123                       — all threads
-      GET /threads/inb_abc123?status=open            — only open threads
-      GET /threads/inb_abc123?status=snoozed&limit=5 — 5 snoozed threads
+      GET /threads/inb_abc123                        - all threads
+      GET /threads/inb_abc123?status=open             - only open threads
+      GET /threads/inb_abc123?status=snoozed&limit=5  - 5 snoozed threads
     """
     # Build query parameters, omitting any that weren't provided.
     params: dict = {"limit": limit}

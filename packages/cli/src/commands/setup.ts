@@ -97,7 +97,7 @@ setupCommand
           ok(`SES identity for ${domain} already exists`)
         } else {
           fail(`SES identity: ${err.message}`)
-          failures.push('SES domain identity — requires ses:CreateEmailIdentity permission')
+          failures.push('SES domain identity  - requires ses:CreateEmailIdentity permission')
         }
       }
 
@@ -112,7 +112,7 @@ setupCommand
           ok(`Configuration set ${configSetName} already exists`)
         } else {
           fail(`Configuration set: ${err.message}`)
-          failures.push('SES configuration set — requires ses:CreateConfigurationSet permission')
+          failures.push('SES configuration set  - requires ses:CreateConfigurationSet permission')
         }
       }
 
@@ -126,7 +126,7 @@ setupCommand
         ok(`Events topic: ${eventsTopicArn}`)
       } catch (err: any) {
         fail(`SNS events topic: ${err.message}`)
-        failures.push(`SNS events topic (${eventsTopicName}) — requires sns:CreateTopic permission`)
+        failures.push(`SNS events topic (${eventsTopicName})  - requires sns:CreateTopic permission`)
       }
 
       // 8. Add SNS event destination to configuration set
@@ -148,7 +148,7 @@ setupCommand
             ok('Event destination already exists')
           } else {
             fail(`Event destination: ${err.message}`)
-            failures.push('SES event destination — requires ses:CreateConfigurationSetEventDestination permission')
+            failures.push('SES event destination  - requires ses:CreateConfigurationSetEventDestination permission')
           }
         }
       }
@@ -186,7 +186,7 @@ setupCommand
           }
         } catch (err: any) {
           fail(`S3 bucket: ${err.message}`)
-          failures.push(`S3 bucket (${bucketName}) — requires s3:CreateBucket, s3:HeadBucket permissions`)
+          failures.push(`S3 bucket (${bucketName})  - requires s3:CreateBucket, s3:HeadBucket permissions`)
           bucketName = ''
         }
 
@@ -212,7 +212,7 @@ setupCommand
             ok('Bucket policy set')
           } catch (err: any) {
             fail(`Bucket policy: ${err.message}`)
-            failures.push(`S3 bucket policy — requires s3:PutBucketPolicy permission`)
+            failures.push(`S3 bucket policy  - requires s3:PutBucketPolicy permission`)
           }
         }
 
@@ -225,7 +225,7 @@ setupCommand
           ok(`Inbound topic: ${inboundTopicArn}`)
         } catch (err: any) {
           fail(`SNS inbound topic: ${err.message}`)
-          failures.push(`SNS inbound topic (${inboundTopicName}) — requires sns:CreateTopic permission`)
+          failures.push(`SNS inbound topic (${inboundTopicName})  - requires sns:CreateTopic permission`)
         }
 
         // 12. Create SES receipt rule set and rule
@@ -239,7 +239,7 @@ setupCommand
             ok(`Rule set ${ruleSetName} already exists`)
           } else {
             fail(`Receipt rule set: ${err.message}`)
-            failures.push('SES receipt rule set — requires ses:CreateReceiptRuleSet permission')
+            failures.push('SES receipt rule set  - requires ses:CreateReceiptRuleSet permission')
           }
         }
 
@@ -261,7 +261,7 @@ setupCommand
             ok(`Activated rule set: ${ruleSetName}`)
           } catch (err: any) {
             fail(`Activate rule set: ${err.message}`)
-            failures.push('SES active receipt rule set — requires ses:SetActiveReceiptRuleSet permission')
+            failures.push('SES active receipt rule set  - requires ses:SetActiveReceiptRuleSet permission')
           }
         }
 
@@ -297,7 +297,7 @@ setupCommand
               ok(`Receipt rule pigeons-${slug} already exists`)
             } else {
               fail(`Receipt rule: ${err.message}`)
-              failures.push('SES receipt rule — requires ses:CreateReceiptRule permission')
+              failures.push('SES receipt rule  - requires ses:CreateReceiptRule permission')
             }
           }
         }

@@ -1,6 +1,6 @@
-# Quick Start — curl
+# Quick Start  - curl
 
-Send your first email using raw HTTP calls. No SDK required — works from any language that can make HTTP requests.
+Send your first email using raw HTTP calls. No SDK required  - works from any language that can make HTTP requests.
 
 ## What you'll learn
 
@@ -86,6 +86,6 @@ curl -X POST http://localhost:3891/v1/emails \
 
 ## Next steps
 
-- [with-typescript](../with-typescript/) — Same flow using the TypeScript SDK
-- [with-python](../with-python/) — Same flow using the Python SDK
-- [webhook-event-handler](../webhook-event-handler/) — Receive delivery events via webhooks instead of polling
+- [with-typescript](../with-typescript/)  - Same flow using the TypeScript SDK
+- [with-python](../with-python/)  - Same flow using the Python SDK
+- [webhook-event-handler](../webhook-event-handler/)  - Receive delivery events via webhooks instead of polling

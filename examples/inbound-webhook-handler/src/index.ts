@@ -99,7 +99,7 @@ app.post('/webhooks/inbound', async (req: Request, res: Response) => {
   const payload = req.body as InboundWebhookPayload
 
   // Verify this is an inbound message event. Pigeons fires different
-  // event types (email.delivered, email.bounced, etc.) — ignore any
+  // event types (email.delivered, email.bounced, etc.)  - ignore any
   // that aren't inbound messages.
   if (payload.event !== 'inbox.message.received') {
     console.log(`Ignoring event: ${payload.event}`)
@@ -134,7 +134,7 @@ app.post('/webhooks/inbound', async (req: Request, res: Response) => {
 
     // Log attachments if present. Each attachment includes the filename,
     // MIME content type, and size in bytes. The actual file content is
-    // stored in S3 — use the attachment URL to download it.
+    // stored in S3  - use the attachment URL to download it.
     if (message.attachments && message.attachments.length > 0) {
       console.log(`  Attachments:`)
       for (const att of message.attachments) {
@@ -194,9 +194,9 @@ app.post('/webhooks/inbound', async (req: Request, res: Response) => {
 // Lists recent messages from the monitored inbox.
 //
 // Supports optional query parameters:
-//   ?limit=10          — number of messages to return (default 25, max 100)
-//   ?direction=inbound — filter by direction: "inbound" or "outbound"
-//   ?threadId=thr_...  — filter messages within a specific thread
+//   ?limit=10           - number of messages to return (default 25, max 100)
+//   ?direction=inbound  - filter by direction: "inbound" or "outbound"
+//   ?threadId=thr_...   - filter messages within a specific thread
 //
 // The response uses cursor-based pagination. When `has_more` is true,
 // pass the `next_cursor` value as `?cursor=...` to fetch the next page.
@@ -231,11 +231,11 @@ app.get('/messages', async (req: Request, res: Response) => {
 // Reply detection uses the In-Reply-To and References email headers.
 //
 // Supports optional query parameters:
-//   ?limit=10         — number of threads to return (default 25, max 100)
-//   ?status=open      — filter by thread status: "open", "closed", "snoozed"
+//   ?limit=10          - number of threads to return (default 25, max 100)
+//   ?status=open       - filter by thread status: "open", "closed", "snoozed"
 //
 // The response includes each thread's subject, participant list, message
-// count, and timestamps — useful for building an inbox UI.
+// count, and timestamps  - useful for building an inbox UI.
 
 app.get('/threads', async (req: Request, res: Response) => {
   const limit = req.query.limit ? Number(req.query.limit) : undefined
@@ -284,9 +284,9 @@ app.listen(port, () => {
   console.log(`Monitoring inbox: ${INBOX_ID}`)
   console.log()
   console.log(`Endpoints:`)
-  console.log(`  POST http://localhost:${port}/webhooks/inbound  — receives webhook events`)
-  console.log(`  GET  http://localhost:${port}/messages           — list inbox messages`)
-  console.log(`  GET  http://localhost:${port}/threads            — list inbox threads`)
+  console.log(`  POST http://localhost:${port}/webhooks/inbound   - receives webhook events`)
+  console.log(`  GET  http://localhost:${port}/messages            - list inbox messages`)
+  console.log(`  GET  http://localhost:${port}/threads             - list inbox threads`)
   console.log()
   console.log(`Register this webhook URL in Pigeons:`)
   console.log(`  curl -X POST $PIGEONS_URL/v1/webhooks \\`)

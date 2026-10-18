@@ -2,7 +2,7 @@
  * Stripe-style Welcome Email
  *
  * A production-quality template inspired by Stripe's welcome email.
- * Uses React Email components — rendered server-side by Pigeons when sent.
+ * Uses React Email components  - rendered server-side by Pigeons when sent.
  *
  * Template variables:
  *   - companyName: Your company name
@@ -55,7 +55,7 @@ function Template({ companyName = 'Acme', dashboardUrl = 'https://dashboard.exam
               <Link href={docsUrl} style={{ color: '#556cd6' }}>docs</Link> handy.
             </Text>
             <Text style={{ fontSize: '16px', lineHeight: '26px', color: '#525f7f' }}>
-              — The {companyName} team
+               - The {companyName} team
             </Text>
             <Hr style={{ borderColor: '#e6ebf1', margin: '20px 0' }} />
             <Text style={{ fontSize: '12px', lineHeight: '16px', color: '#8898aa' }}>

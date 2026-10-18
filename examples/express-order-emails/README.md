@@ -4,9 +4,9 @@ E-commerce transactional email flows with idempotency, powered by the Pigeons Ty
 
 ## What you'll learn
 
-- **Idempotency keys** — prevent duplicate emails when clients retry failed requests
-- **Template-based sends** — use stored templates with dynamic variables instead of inline HTML
-- **Delivery status polling** — check email delivery state by ID (and when to use webhooks instead)
+- **Idempotency keys**  - prevent duplicate emails when clients retry failed requests
+- **Template-based sends**  - use stored templates with dynamic variables instead of inline HTML
+- **Delivery status polling**  - check email delivery state by ID (and when to use webhooks instead)
 
 ## Prerequisites
 
@@ -126,6 +126,6 @@ In production, use webhooks instead of polling. Pigeons fires events for `email.
 
 ## Next steps
 
-- [with-typescript](../with-typescript/) — Minimal SDK quick start
-- [email-templates](../email-templates/) — Manage and preview templates
-- [with-curl](../with-curl/) — Raw HTTP calls without an SDK
+- [with-typescript](../with-typescript/)  - Minimal SDK quick start
+- [email-templates](../email-templates/)  - Manage and preview templates
+- [with-curl](../with-curl/)  - Raw HTTP calls without an SDK

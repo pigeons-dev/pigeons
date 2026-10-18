@@ -45,8 +45,8 @@ contactsCommand
       const lookup = emailOrId.includes('@') ? encodeURIComponent(emailOrId) : emailOrId
       const c = await client.get(`/v1/contacts/${lookup}`)
       console.log(`Email:        ${c.email}`)
-      console.log(`Name:         ${[c.firstName, c.lastName].filter(Boolean).join(' ') || '—'}`)
-      console.log(`Tags:         ${c.tags?.join(', ') || '—'}`)
+      console.log(`Name:         ${[c.firstName, c.lastName].filter(Boolean).join(' ') || ' -'}`)
+      console.log(`Tags:         ${c.tags?.join(', ') || ' -'}`)
       console.log(`Unsubscribed: ${c.unsubscribed ? 'yes' : 'no'}`)
       console.log(`Bounced:      ${c.bounced ? 'yes' : 'no'}`)
       if (c.properties && Object.keys(c.properties).length) {

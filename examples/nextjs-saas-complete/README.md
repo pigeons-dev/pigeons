@@ -212,7 +212,7 @@ The send route supports two modes: template-based (pass `templateId` and `data`)
 
 ### Contact management (`src/app/api/contacts/`)
 
-Full CRUD for contacts with tag-based filtering. Tags are the primary segmentation mechanism — when you create a campaign, you target contacts by tag. The list endpoint supports pagination via cursor and filtering by a single tag. The update endpoint replaces tags wholesale (fetch-merge-update if you need additive behavior).
+Full CRUD for contacts with tag-based filtering. Tags are the primary segmentation mechanism  - when you create a campaign, you target contacts by tag. The list endpoint supports pagination via cursor and filtering by a single tag. The update endpoint replaces tags wholesale (fetch-merge-update if you need additive behavior).
 
 ### Campaigns (`src/app/api/campaigns/`)
 
@@ -220,7 +220,7 @@ The list endpoint returns campaigns with their stats (total, sent, delivered, op
 
 ### Webhooks (`src/app/api/webhooks/pigeons/`)
 
-Receives POST requests from Pigeons whenever an email lifecycle event occurs. Routes events by type to handler functions. The example uses an in-memory log for demonstration — in production, write events to your database and add signature verification using the `X-Pigeons-Signature` header and your `WEBHOOK_SECRET`.
+Receives POST requests from Pigeons whenever an email lifecycle event occurs. Routes events by type to handler functions. The example uses an in-memory log for demonstration  - in production, write events to your database and add signature verification using the `X-Pigeons-Signature` header and your `WEBHOOK_SECRET`.
 
 ### Dashboard stats (`src/app/api/dashboard/stats/`)
 
@@ -228,19 +228,19 @@ Fetches global stats and recent campaigns in parallel using `Promise.all()` for 
 
 ## Production checklist
 
-- [ ] **Webhook signature verification** — Verify the `X-Pigeons-Signature` header using HMAC-SHA256 with your `WEBHOOK_SECRET`. Without this, anyone can POST fake events to your webhook endpoint.
-- [ ] **Error handling** — Every route maps `PigeonsError` to the appropriate HTTP status. Add structured logging (e.g. Pino, Winston) for debugging production issues.
-- [ ] **Rate limiting** — Add rate limiting to auth routes (especially forgot-password) per IP and per email to prevent abuse.
-- [ ] **Idempotency keys** — Use deterministic idempotency keys for all transactional sends (e.g. `order-${orderId}-receipt`). This makes retries safe and prevents duplicate emails.
-- [ ] **Contact suppression** — On `email.bounced` (hard) and `email.complained` events, immediately suppress the contact. Continued sends to these addresses damage your sender reputation.
-- [ ] **Dashboard caching** — Cache the stats endpoint response (60s TTL) to avoid hammering the Pigeons API on every page load.
-- [ ] **Template management** — Store template slugs as constants, not inline strings. Consider a setup script that creates templates on first deploy.
-- [ ] **Monitoring** — Track delivery rates, bounce rates, and complaint rates. Alert if complaint rate exceeds 0.1% or bounce rate exceeds 5%.
+- [ ] **Webhook signature verification**  - Verify the `X-Pigeons-Signature` header using HMAC-SHA256 with your `WEBHOOK_SECRET`. Without this, anyone can POST fake events to your webhook endpoint.
+- [ ] **Error handling**  - Every route maps `PigeonsError` to the appropriate HTTP status. Add structured logging (e.g. Pino, Winston) for debugging production issues.
+- [ ] **Rate limiting**  - Add rate limiting to auth routes (especially forgot-password) per IP and per email to prevent abuse.
+- [ ] **Idempotency keys**  - Use deterministic idempotency keys for all transactional sends (e.g. `order-${orderId}-receipt`). This makes retries safe and prevents duplicate emails.
+- [ ] **Contact suppression**  - On `email.bounced` (hard) and `email.complained` events, immediately suppress the contact. Continued sends to these addresses damage your sender reputation.
+- [ ] **Dashboard caching**  - Cache the stats endpoint response (60s TTL) to avoid hammering the Pigeons API on every page load.
+- [ ] **Template management**  - Store template slugs as constants, not inline strings. Consider a setup script that creates templates on first deploy.
+- [ ] **Monitoring**  - Track delivery rates, bounce rates, and complaint rates. Alert if complaint rate exceeds 0.1% or bounce rate exceeds 5%.
 
 ## Next steps
 
-- [nextjs-authentication-emails](../nextjs-authentication-emails/) — Deeper dive into auth email patterns
-- [campaign-send](../campaign-send/) — Full campaign lifecycle with contact batching
-- [inbound-webhook-handler](../inbound-webhook-handler/) — Receive and reply to inbound emails
-- [subscription-topics](../subscription-topics/) — Per-topic subscription management
-- [with-typescript](../with-typescript/) — Minimal SDK quick-start
+- [nextjs-authentication-emails](../nextjs-authentication-emails/)  - Deeper dive into auth email patterns
+- [campaign-send](../campaign-send/)  - Full campaign lifecycle with contact batching
+- [inbound-webhook-handler](../inbound-webhook-handler/)  - Receive and reply to inbound emails
+- [subscription-topics](../subscription-topics/)  - Per-topic subscription management
+- [with-typescript](../with-typescript/)  - Minimal SDK quick-start

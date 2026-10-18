@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     // Step 1: Create a contact so this user is part of your audience
     // for future campaigns and sequences. Tags let you segment later.
-    // If the contact already exists, the SDK will return a 409 —
+    // If the contact already exists, the SDK will return a 409  -
     // that's fine, we catch it and continue to send the email.
     try {
       await pigeons.contacts.create({
@@ -41,9 +41,9 @@ export async function POST(request: Request) {
         tags: ['user', 'signup'],
       })
     } catch (err) {
-      // 409 = contact already exists — safe to ignore
+      // 409 = contact already exists  - safe to ignore
       if (err instanceof PigeonsError && err.statusCode === 409) {
-        // Contact already exists — continue to send the email
+        // Contact already exists  - continue to send the email
       } else {
         throw err
       }

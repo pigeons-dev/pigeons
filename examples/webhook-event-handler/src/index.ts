@@ -86,7 +86,7 @@ interface EmailFailedData {
 // via GET /events. In production, persist events to your database.
 
 interface StoredEvent {
-  deliveryId: string       // X-Pigeons-Delivery header — unique per delivery attempt
+  deliveryId: string       // X-Pigeons-Delivery header  - unique per delivery attempt
   event: string
   data: Record<string, unknown>
   receivedAt: string
@@ -128,7 +128,7 @@ const suppressedContacts = new Set<string>()
 const app = express()
 
 // Pigeons delivers webhooks as JSON with Content-Type: application/json.
-// We also capture the raw body for signature verification — the HMAC is
+// We also capture the raw body for signature verification  - the HMAC is
 // computed over the raw bytes, not the parsed object.
 app.use(
   express.json({
@@ -176,7 +176,7 @@ function verifySignature(rawBody: string, signature: string, secret: string): bo
 
 function handleEmailSent(data: EmailSentData): string {
   // email.sent fires when Pigeons accepts the email and enqueues it for
-  // delivery via SES. The email is not yet delivered at this point — it's
+  // delivery via SES. The email is not yet delivered at this point  - it's
   // in the sending pipeline.
   console.log(`  [sent] Email ${data.email_id} accepted and queued for delivery`)
 
@@ -185,7 +185,7 @@ function handleEmailSent(data: EmailSentData): string {
 
 function handleEmailDelivered(data: EmailDeliveredData): string {
   // email.delivered fires when SES confirms the recipient's mail server
-  // accepted the email. This is the "happy path" terminal state — the
+  // accepted the email. This is the "happy path" terminal state  - the
   // email has been successfully handed off.
   //
   // Best practice: update the email's status in your database to "delivered"
@@ -204,7 +204,7 @@ function handleEmailBounced(data: EmailBouncedData): string {
   //   sending to this address immediately. Continued sends to hard-bounced
   //   addresses damage your sender reputation and can get you suspended.
   //
-  //   Transient (soft bounce): Temporary failure — mailbox full, server
+  //   Transient (soft bounce): Temporary failure  - mailbox full, server
   //   temporarily unavailable, message too large. SES may retry
   //   automatically. You can try again later, but track repeated soft
   //   bounces and suppress after a threshold (e.g., 3 soft bounces in 7 days).
@@ -241,7 +241,7 @@ function handleEmailComplained(data: EmailComplainedData): string {
   //
   // Complaints are the most damaging signal for sender reputation.
   // You MUST immediately and permanently stop sending to any address
-  // that generates a complaint. There are no second chances — a complaint
+  // that generates a complaint. There are no second chances  - a complaint
   // means the recipient does not want your email.
   //
   // SES complaint rate threshold: keep below 0.1%. Exceeding this can
@@ -261,7 +261,7 @@ function handleEmailComplained(data: EmailComplainedData): string {
 
 function handleEmailOpened(data: EmailOpenedData): string {
   // email.opened fires when the recipient's email client loads the tracking
-  // pixel embedded in the HTML body. This only fires on the first open —
+  // pixel embedded in the HTML body. This only fires on the first open  -
   // subsequent opens increment the count but don't re-fire the webhook.
   //
   // Important caveats about open tracking:
@@ -280,7 +280,7 @@ function handleEmailOpened(data: EmailOpenedData): string {
 }
 
 function handleEmailFailed(data: EmailFailedData): string {
-  // email.failed fires when Pigeons cannot send the email at all — for
+  // email.failed fires when Pigeons cannot send the email at all  - for
   // example, SES rejects the API call (invalid from address, sandbox
   // restrictions, account suspension) or all recipients are suppressed.
   //
@@ -296,7 +296,7 @@ function handleEmailFailed(data: EmailFailedData): string {
   const error = data.error ?? 'unknown error'
   console.log(`  [failed] Email ${data.email_id} failed to send: ${error}`)
 
-  return `logged: send failure — ${error} — queued for investigation`
+  return `logged: send failure  - ${error}  - queued for investigation`
 }
 
 // ── POST /webhooks/pigeons ─────────────────────────────────────────────────
@@ -389,8 +389,8 @@ app.post('/webhooks/pigeons', (req: Request, res: Response) => {
 // inspecting what events have come through during development.
 //
 // Query parameters:
-//   ?type=email.bounced — filter by event type
-//   ?limit=10           — number of events to return (default: 50)
+//   ?type=email.bounced  - filter by event type
+//   ?limit=10            - number of events to return (default: 50)
 
 app.get('/events', (req: Request, res: Response) => {
   const typeFilter = req.query.type as string | undefined
@@ -436,16 +436,16 @@ async function start(): Promise<void> {
   console.log(`Webhook event handler listening on http://localhost:${PORT}`)
   console.log()
   console.log(`Endpoints:`)
-  console.log(`  POST http://localhost:${PORT}/webhooks/pigeons  — receives webhook events`)
-  console.log(`  GET  http://localhost:${PORT}/events             — view received events`)
-  console.log(`  GET  http://localhost:${PORT}/health             — health check`)
+  console.log(`  POST http://localhost:${PORT}/webhooks/pigeons   - receives webhook events`)
+  console.log(`  GET  http://localhost:${PORT}/events              - view received events`)
+  console.log(`  GET  http://localhost:${PORT}/health              - health check`)
   console.log()
 
   // ── Register webhook ───────────────────────────────────────────────────
   // Subscribe to all email lifecycle events. Pigeons will POST to our
   // /webhooks/pigeons endpoint whenever any of these events occur.
   //
-  // The create() response includes a `secret` field — this is the only time
+  // The create() response includes a `secret` field  - this is the only time
   // the secret is returned. Store it securely. Subsequent get() and list()
   // calls strip the secret from the response.
   try {
@@ -492,9 +492,9 @@ async function start(): Promise<void> {
   //
   // In SES sandbox mode, you can only send to verified addresses.
   // Use the SES simulator addresses for testing:
-  //   success@simulator.amazonses.com  — triggers Delivery
-  //   bounce@simulator.amazonses.com   — triggers Bounce (Permanent)
-  //   complaint@simulator.amazonses.com — triggers Complaint
+  //   success@simulator.amazonses.com   - triggers Delivery
+  //   bounce@simulator.amazonses.com    - triggers Bounce (Permanent)
+  //   complaint@simulator.amazonses.com  - triggers Complaint
   try {
     console.log(`Sending test email to trigger events...`)
 
@@ -534,7 +534,7 @@ async function start(): Promise<void> {
     } else {
       console.error('Failed to send test email:', err)
     }
-    console.error(`The webhook handler is still running — send emails manually to trigger events.`)
+    console.error(`The webhook handler is still running  - send emails manually to trigger events.`)
     console.error()
   }
 }

@@ -44,9 +44,9 @@ campaignsCommand
       const c = await client.get(`/v1/campaigns/${id}`)
       console.log(`ID:       ${c.id}`)
       console.log(`Name:     ${c.name}`)
-      console.log(`Subject:  ${c.subject ?? '—'}`)
+      console.log(`Subject:  ${c.subject ?? ' -'}`)
       console.log(`Status:   ${c.status}`)
-      console.log(`Template: ${c.templateId ?? '—'}`)
+      console.log(`Template: ${c.templateId ?? ' -'}`)
       if (c.audienceFilter) console.log(`Filter:   ${JSON.stringify(c.audienceFilter)}`)
       if (c.stats) {
         console.log(`Stats:    total=${c.stats.total} sent=${c.stats.sent} delivered=${c.stats.delivered} bounced=${c.stats.bounced} failed=${c.stats.failed}`)

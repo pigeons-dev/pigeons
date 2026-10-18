@@ -47,9 +47,9 @@ Inbound webhook handler listening on http://localhost:4001
 Monitoring inbox: inb_abc123
 
 Endpoints:
-  POST http://localhost:4001/webhooks/inbound  — receives webhook events
-  GET  http://localhost:4001/messages           — list inbox messages
-  GET  http://localhost:4001/threads            — list inbox threads
+  POST http://localhost:4001/webhooks/inbound   - receives webhook events
+  GET  http://localhost:4001/messages            - list inbox messages
+  GET  http://localhost:4001/threads             - list inbox threads
 
 Register this webhook URL in Pigeons:
   curl -X POST $PIGEONS_URL/v1/webhooks \
@@ -85,7 +85,7 @@ console.log(`Webhook registered: ${webhook.id}`)
 console.log(`Secret: ${webhook.secret}`) // save this for signature verification
 ```
 
-The response includes a `secret` — save it if you want to verify webhook signatures in production.
+The response includes a `secret`  - save it if you want to verify webhook signatures in production.
 
 For local development, use a tunnel (ngrok, Cloudflare Tunnel, etc.) so Pigeons can reach your localhost:
 
@@ -171,15 +171,15 @@ Without `inReplyTo`, the reply would start a new, disconnected thread.
 ### Message listing (`GET /messages`)
 
 Lists messages from the inbox with optional filters:
-- `direction` — `inbound` (received) or `outbound` (sent from inbox)
-- `threadId` — only messages in a specific thread
-- `limit` / `cursor` — cursor-based pagination
+- `direction`  - `inbound` (received) or `outbound` (sent from inbox)
+- `threadId`  - only messages in a specific thread
+- `limit` / `cursor`  - cursor-based pagination
 
 ### Thread listing (`GET /threads`)
 
 Lists conversation threads with optional filters:
-- `status` — `open`, `closed`, or `snoozed`
-- `limit` / `cursor` — cursor-based pagination
+- `status`  - `open`, `closed`, or `snoozed`
+- `limit` / `cursor`  - cursor-based pagination
 
 Each thread includes the subject, participants, message count, and timestamps.
 
@@ -220,5 +220,5 @@ function verifySignature(body: string, signature: string, secret: string): boole
 
 ## Next steps
 
-- [helpdesk-inbox](../helpdesk-inbox/) — Build a full helpdesk with ticket routing and status management
-- [mcp-claude-agent](../mcp-claude-agent/) — Let an LLM agent read and reply to emails via MCP tools
+- [helpdesk-inbox](../helpdesk-inbox/)  - Build a full helpdesk with ticket routing and status management
+- [mcp-claude-agent](../mcp-claude-agent/)  - Let an LLM agent read and reply to emails via MCP tools

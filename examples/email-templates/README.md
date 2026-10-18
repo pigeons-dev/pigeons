@@ -2,7 +2,7 @@
 
 A library of 6 production-quality React Email templates, demonstrating the full template lifecycle: create, preview, and send with variables.
 
-Includes a **Stripe-style welcome email** — showing that any design you can build with React Email works out of the box as a Pigeons template.
+Includes a **Stripe-style welcome email**  - showing that any design you can build with React Email works out of the box as a Pigeons template.
 
 ## What you'll learn
 
@@ -66,7 +66,7 @@ Template library:
   stripe-welcome       v1  "You're now ready to go live with {{companyName}}!"
   welcome              v1  "Welcome to {{companyName}}, {{name}}!"
   password-reset       v1  "Reset your {{companyName}} password"
-  receipt              v1  "Your receipt from {{companyName}} — {{invoiceNumber}}"
+  receipt              v1  "Your receipt from {{companyName}}  - {{invoiceNumber}}"
   notification         v1  "{{actorName}} {{action}}"
   team-invite          v1  "{{inviterName}} invited you to join {{teamName}}"
 
@@ -79,16 +79,16 @@ Done!
 
 ## How Pigeons templates work
 
-1. **Store once** — Create a template with a React Email component as the body. Pigeons stores it with a slug you can reference later.
+1. **Store once**  - Create a template with a React Email component as the body. Pigeons stores it with a slug you can reference later.
 
-2. **Render server-side** — When you send an email with `templateId`, the server renders the React component with your data. No React runtime needed in your app.
+2. **Render server-side**  - When you send an email with `templateId`, the server renders the React component with your data. No React runtime needed in your app.
 
-3. **Version tracked** — Each update increments the version number. You always know which version was used for a sent email.
+3. **Version tracked**  - Each update increments the version number. You always know which version was used for a sent email.
 
-4. **Any design works** — If you can build it with React Email components (Html, Button, Container, Section, Text, Link, Img, Hr, etc.), it works as a Pigeons template. The Stripe-style template in this example demonstrates production-quality design.
+4. **Any design works**  - If you can build it with React Email components (Html, Button, Container, Section, Text, Link, Img, Hr, etc.), it works as a Pigeons template. The Stripe-style template in this example demonstrates production-quality design.
 
 ## Next steps
 
-- [nextjs-authentication-emails](../nextjs-authentication-emails/) — Use these templates in a real Next.js auth flow
-- [campaign-send](../campaign-send/) — Send a campaign using a template to a list of contacts
-- [mcp-claude-agent](../mcp-claude-agent/) — Let an AI agent preview and send templates
+- [nextjs-authentication-emails](../nextjs-authentication-emails/)  - Use these templates in a real Next.js auth flow
+- [campaign-send](../campaign-send/)  - Send a campaign using a template to a list of contacts
+- [mcp-claude-agent](../mcp-claude-agent/)  - Let an AI agent preview and send templates

@@ -35,7 +35,7 @@ try {
   template = await pigeons.templates.create({
     slug: 'product-launch',
     name: 'Product Launch Announcement',
-    subject: '{{productName}} is here — see what\'s new',
+    subject: '{{productName}} is here  - see what\'s new',
     body: `<!DOCTYPE html>
 <html>
 <head>
@@ -67,7 +67,7 @@ try {
                 Hi {{firstName}},
               </p>
               <p style="margin: 0 0 16px; color: #374151; font-size: 16px; line-height: 1.6;">
-                We're excited to announce the launch of <strong>{{productName}}</strong> — {{description}}
+                We're excited to announce the launch of <strong>{{productName}}</strong>  - {{description}}
               </p>
               <p style="margin: 0 0 24px; color: #374151; font-size: 16px; line-height: 1.6;">
                 Here's what you can do with it:
@@ -90,7 +90,7 @@ try {
               </table>
 
               <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
-                Questions? Just reply to this email — we read every message.
+                Questions? Just reply to this email  - we read every message.
               </p>
             </td>
           </tr>
@@ -137,7 +137,7 @@ try {
 // ── 2. Prepare contact data ─────────────────────────────────────────────────
 // In production, you'd import contacts from a CSV file, CRM export, or
 // database query. Here we simulate that with an inline array.
-// Each contact has an email, name, and tags. The tags are important —
+// Each contact has an email, name, and tags. The tags are important  -
 // they're how we target the campaign audience later.
 
 const contactData = [
@@ -150,7 +150,7 @@ const contactData = [
 
 // ── 3. Import contacts ──────────────────────────────────────────────────────
 // Use batch import for efficiency. The batch endpoint handles duplicates
-// gracefully — if a contact with that email already exists, it's skipped
+// gracefully  - if a contact with that email already exists, it's skipped
 // rather than causing an error.
 
 console.log('Importing contacts...\n')
@@ -177,14 +177,14 @@ console.log()
 //     Filter by tag to target a specific segment.
 //   - subject: Can also contain {{variables}} from templateData
 //
-// The campaign starts in "draft" status — it won't send until you
+// The campaign starts in "draft" status  - it won't send until you
 // explicitly call campaigns.send().
 
 console.log('Creating campaign...\n')
 
 const campaign = await pigeons.campaigns.create({
   name: 'Pigeons v2 Product Launch',
-  subject: '{{productName}} is here — see what\'s new',
+  subject: '{{productName}} is here  - see what\'s new',
   templateId: template.id,
   templateData: {
     productName: 'Pigeons v2',

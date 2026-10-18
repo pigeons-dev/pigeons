@@ -174,16 +174,16 @@ is marked as "completed".
 ```
 
 **Sequence statuses:**
-- `draft` — created but not yet activated. Steps can be edited freely.
-- `active` — processing enrollments. Contacts progress through steps.
-- `paused` — processing halted. Contacts hold at their current step.
-- `archived` — sequence is retired. No new enrollments or processing.
+- `draft`  - created but not yet activated. Steps can be edited freely.
+- `active`  - processing enrollments. Contacts progress through steps.
+- `paused`  - processing halted. Contacts hold at their current step.
+- `archived`  - sequence is retired. No new enrollments or processing.
 
 **Enrollment statuses:**
-- `active` — contact is progressing through steps.
-- `completed` — contact finished all steps successfully.
-- `exited` — contact was removed before completing (manual unenroll, unsubscribe).
-- `failed` — a step failed permanently (e.g., hard bounce).
+- `active`  - contact is progressing through steps.
+- `completed`  - contact finished all steps successfully.
+- `exited`  - contact was removed before completing (manual unenroll, unsubscribe).
+- `failed`  - a step failed permanently (e.g., hard bounce).
 
 ## Code walkthrough
 
@@ -204,9 +204,9 @@ const id = await pigeons.templates.create({
 
 A sequence is an ordered list of steps. Steps execute top-to-bottom. Each step has a `type`:
 
-- `email` — sends an email using a template, with optional `templateData` for variables
-- `delay` — pauses for a duration (`"2d"`, `"12h"`, `"30m"`)
-- `condition` — (advanced) branches based on contact properties or behavior
+- `email`  - sends an email using a template, with optional `templateData` for variables
+- `delay`  - pauses for a duration (`"2d"`, `"12h"`, `"30m"`)
+- `condition`  - (advanced) branches based on contact properties or behavior
 
 ```typescript
 const sequence = await pigeons.sequences.create({
@@ -283,6 +283,6 @@ Convert free trial users to paid:
 
 ## Next steps
 
-- [email-templates](../email-templates/) — Build a full template library with React Email components
-- [inbound-webhook-handler](../inbound-webhook-handler/) — Handle delivery/bounce events to auto-exit bounced contacts
-- [mcp-claude-agent](../mcp-claude-agent/) — Let an AI agent manage sequences and enrollments
+- [email-templates](../email-templates/)  - Build a full template library with React Email components
+- [inbound-webhook-handler](../inbound-webhook-handler/)  - Handle delivery/bounce events to auto-exit bounced contacts
+- [mcp-claude-agent](../mcp-claude-agent/)  - Let an AI agent manage sequences and enrollments

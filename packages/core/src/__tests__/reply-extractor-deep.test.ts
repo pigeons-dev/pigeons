@@ -46,7 +46,7 @@ describe('extractTextReply edge cases', () => {
     ].join('\n')
     const result = extractTextReply(text)
     expect(result).toContain('FYI see below')
-    // email-reply-parser does not strip forwarded content — only quoted replies
+    // email-reply-parser does not strip forwarded content  - only quoted replies
     expect(result).toContain('Forwarded message')
   })
 
