@@ -126,7 +126,9 @@ export async function processInboundEmail(
 
   // Extract reply content
   const extractedText = parsed.text ? extractTextReply(parsed.text) : null
-  const extractedHtml = parsed.html ? extractHtmlReply(parsed.html as string) : null
+  // mailparser sets html to false (not undefined) when there is no HTML part
+  const html = typeof parsed.html === 'string' ? parsed.html : null
+  const extractedHtml = html ? extractHtmlReply(html) : null
 
   // Parse attachments
   const attachments = (parsed.attachments ?? []).map((att) => {
@@ -150,7 +152,7 @@ export async function processInboundEmail(
     to: toEmails,
     cc: parsed.cc ? extractEmails(Array.isArray(parsed.cc) ? parsed.cc.map((a) => a.text).join(', ') : parsed.cc.text) : null,
     subject: parsed.subject ?? null,
-    html: (parsed.html as string) ?? null,
+    html,
     text: parsed.text ?? null,
     extractedHtml,
     extractedText,
