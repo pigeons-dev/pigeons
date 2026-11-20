@@ -48,7 +48,7 @@ const e2eConfig: Config = {
   openTracking: true,
   baseUrl: `http://localhost:${port}`,
   configurationSet: 'pigeons-tracking',
-  inboundS3Bucket: 'pigeons-inbound-example',
+  inboundS3Bucket: process.env.E2E_INBOUND_S3_BUCKET!,
   inboundS3KeyPrefix: 'inbound/',
 }
 
@@ -58,6 +58,9 @@ export async function startAll() {
   }
   if (!process.env.NGROK_AUTHTOKEN) {
     throw new Error('NGROK_AUTHTOKEN is required for E2E tests.')
+  }
+  if (!process.env.E2E_INBOUND_S3_BUCKET) {
+    throw new Error('E2E_INBOUND_S3_BUCKET is required for E2E tests.')
   }
 
   // 1. Boot Pigeons server with in-memory SQLite
